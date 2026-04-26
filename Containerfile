@@ -80,7 +80,7 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
-    /bin/bash -c "for script in /ctx/build/*.sh; do bash \$script; done"
+    /bin/bash -c "set -eu; shopt -s nullglob; for script in /ctx/build/*.sh; do bash \$script; done"
     
 ### LINTING
 ## Verify final image and contents are correct.
