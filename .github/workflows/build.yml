@@ -54,8 +54,8 @@ jobs:
 
       - name: Updating Ubuntu
         run: |
-        # Just update apt cache, so Actions doesn't annoy me with an error
-        sudo apt-get update
+          # Just update apt cache, so Actions doesn't annoy me with an error
+          sudo apt-get update
 
       - name: Mount BTRFS for podman storage
         id: container-storage-action
