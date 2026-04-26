@@ -1,4 +1,9 @@
-# finpilot
+# Fedora Bluefin (fedora-bluefin)
+The purpose of this custom build is to retain uBlue and Bluefin additions but with Bluefin's branding stripped away. This is also a playground for me to learn about building container images and GitHub Actions in general.
+
+This is a personal project, which can get unmaintained at any time. **DO NOT** use this repo's image as your main ones, and please use the Bluefin's image for that purpose.
+
+---
 
 A template for building custom bootc operating system images based on the lessons from [Universal Blue](https://universal-blue.org/) and [Bluefin](https://projectbluefin.io). It is designed to be used manually, but is optimized to be bootstraped by GitHub Copilot. After set up you'll have your own custom Linux. 
 
