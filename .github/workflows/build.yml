@@ -52,6 +52,11 @@ jobs:
       #   with:
       #     remove-codeql: true
 
+      - name: Updating Ubuntu
+        run: |
+        # Just update apt cache, so Actions doesn't annoy me with an error
+        sudo apt-get update
+
       - name: Mount BTRFS for podman storage
         id: container-storage-action
         uses: ublue-os/container-storage-action@911baca08baf30c8654933e9e9723cb399892140 # main
