@@ -25,6 +25,10 @@ rm -rf /usr/share/backgrounds/bluefin
 dnf5 -y swap generic-logos fedora-logos
 dnf5 -y reinstall plymouth-theme-spinner
 
+# Clean stuff that DNF left behind
+dnf5 -y clean all
+rm -rf /var/lib/dnf /var/cache/libdnf5 /run/dnf
+
 # Removing GNOME gschema from Bluefin and regenerate the gschemas
 rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
 glib-compile-schemas /usr/share/glib-2.0/schemas
