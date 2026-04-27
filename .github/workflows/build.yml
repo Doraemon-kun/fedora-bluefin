@@ -34,6 +34,8 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      attestations: write
+      artifact-metadata: write
 
     steps:
       - name: Prepare environment
@@ -107,23 +109,27 @@ jobs:
 
       - name: Build Image
         id: build_image
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
-        with:
-          containerfiles: |
-            ./Containerfile
-          # Postfix image name with -custom to make it a little more descriptive
-          # Syntax: https://docs.github.com/en/actions/learn-github-actions/expressions#format
-          image: ${{ env.IMAGE_NAME }}
-          tags: ${{ env.DEFAULT_TAG }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          oci: false
+        run: |
+          # Read the multiline labels string into a bash array securely
+          mapfile -t LABEL_ARRAY <<< "${{ steps.metadata.outputs.labels }}"
+
+          # Construct the arguments array, preserving spaces!
+          BUILD_ARGS=()
+          for label in "${LABEL_ARRAY[@]}"; do
+            if [ -n "$label" ]; then
+              BUILD_ARGS+=("--label" "$label")
+            fi
+          done
+
+          # Build natively in the system root storage
+          sudo podman build "${BUILD_ARGS[@]}" -t ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} -f ./Containerfile .
 
       # Tag for registry
-      - name: Tag for registry
-        run: |
-          for tag in ${{ steps.metadata.outputs.tags }}; do
-            podman tag ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} ${{ env.IMAGE_NAME }}:$tag
-          done
+      #- name: Tag for registry
+      #  run: |
+      #    for tag in ${{ steps.metadata.outputs.tags }}; do
+      #      podman tag ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} ${{ env.IMAGE_NAME }}:$tag
+      #    done
 
       # SBOM: Software Bill of Materials generation using Syft
       # Creates a detailed inventory of all software components in the image for supply chain security.
@@ -135,45 +141,97 @@ jobs:
       
       - name: Setup Syft
         id: setup-syft
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         uses: anchore/sbom-action/download-syft@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0.20.9
         with:
           syft-version: v1.20.0
 
       - name: Generate SBOM
         id: generate-sbom
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         env:
-          IMAGE: ${{ env.IMAGE_NAME }}
-          DEFAULT_TAG: ${{ env.DEFAULT_TAG }}
           SYFT_CMD: ${{ steps.setup-syft.outputs.cmd }}
         run: |
           OUTPUT_PATH="$(mktemp -d)/sbom.json"
           export SYFT_PARALLELISM=$(($(nproc)*2))
-          $SYFT_CMD ${IMAGE}:${DEFAULT_TAG} -o spdx-json=${OUTPUT_PATH}
+
+          FLAT_DIR="/tmp/flat-rootfs"
+          mkdir -p ${FLAT_DIR}
+
+          # 1. Flatten the image to a standard directory (The Bluefin Secret)
+          sudo podman container create --replace --name "sbom-container" ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} bash
+          sudo podman export "sbom-container" | sudo tar -C ${FLAT_DIR} -xf -
+          sudo podman container rm "sbom-container"
+
+          # 2. Point Syft at the native filesystem directory instead of OCI layers
+          sudo $SYFT_CMD --source-name "${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}" dir:${FLAT_DIR} -o spdx-json=${OUTPUT_PATH}
+
+          # 3. Clean up the extracted filesystem to free space
+          sudo rm -rf ${FLAT_DIR}
+
+          # 4. Fix permissions so the non-root runner can read the file for the Attestation step
+          sudo chown $(whoami):$(id -g) ${OUTPUT_PATH}
+
+          du -sh ${OUTPUT_PATH}
           echo "OUTPUT_PATH=${OUTPUT_PATH}" >> $GITHUB_OUTPUT
+
+      - name: Run Rechunker
+        id: rechunk
+        uses: hhd-dev/rechunk@master
+        with:
+          ref: '${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
+          labels: ${{ steps.metadata.outputs.labels }}
+
+      - name: Fix OCI Directory Permissions
+        run: |
+          # The rechunker runs as root and outputs the OCI directory as root.
+          # We must grant ownership back to the GitHub 'runner' user so Syft and Skopeo can read it.
+          sudo chown -R $(whoami):$(id -g) ${{ steps.rechunk.outputs.location }}
+
+          # And add read perm to all files, traverse to all directories
+          sudo chmod -R a+rX ${{ steps.rechunk.outputs.location }}
 
       # These `if` statements are so that pull requests for your custom images do not make it publish any packages under your name without you knowing
       # They also check if the runner is on the default branch so that things like the merge queue (if you enable it), are going to work
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
-        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Login to GitHub Container Registry
+      #  uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+      #  if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+      #  with:
+      #    registry: ghcr.io
+      #    username: ${{ github.actor }}
+      #    password: ${{ secrets.GITHUB_TOKEN }}
+
+      #- name: Push To GHCR
+      #  uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2
+      #  if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+      #  id: push
+      #  env:
+      #    REGISTRY_USER: ${{ github.actor }}
+      #    REGISTRY_PASSWORD: ${{ github.token }}
+      #  with:
+      #    registry: ${{ env.IMAGE_REGISTRY }}
+      #    image: ${{ env.IMAGE_NAME }}
+      #    tags: ${{ steps.metadata.outputs.tags }}
+      #    username: ${{ env.REGISTRY_USER }}
+      #    password: ${{ env.REGISTRY_PASSWORD }}
 
       - name: Push To GHCR
-        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         id: push
-        env:
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_PASSWORD: ${{ github.token }}
-        with:
-          registry: ${{ env.IMAGE_REGISTRY }}
-          image: ${{ env.IMAGE_NAME }}
-          tags: ${{ steps.metadata.outputs.tags }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+        run: |
+          IMAGE_URL="docker://${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+
+          # Skopeo securely copies the OCI directory straight to GitHub Container Registry
+          for tag in ${{ steps.metadata.outputs.tags }}; do
+            skopeo copy \
+              --dest-creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
+              oci:${{ steps.rechunk.outputs.location }} \
+              $IMAGE_URL:$tag
+          done
+
+          # Retrieve the registry digest of the pushed image so Cosign can sign it
+          DIGEST=$(skopeo inspect --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} $IMAGE_URL:${{ env.DEFAULT_TAG }} | jq -r .Digest)
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
       # Image Signing with Cosign
 
@@ -189,7 +247,6 @@ jobs:
             cosign sign -y --key env://COSIGN_PRIVATE_KEY $IMAGE_FULL:$tag
           done
         env:
-          TAGS: ${{ steps.push.outputs.digest }}
           COSIGN_EXPERIMENTAL: false
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
           COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
@@ -197,6 +254,44 @@ jobs:
       # SBOM Attestation
       # Attaches SBOM (Software Bill of Materials) to your signed image for supply chain security.
       # Requires image signing to be enabled first (see above).
+
+      - name: Install ORAS
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: oras-project/setup-oras@38de303aac69abb66f3e6255b7198bff35f323e3 # v2.0.0
+
+      - name: Upload SBOM
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        id: upload-sbom
+        env:
+          IMAGE: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+          SBOM: ${{ steps.generate-sbom.outputs.OUTPUT_PATH }}
+        run: |
+          # Login to ORAS so it can push to the registry
+          echo ${{ secrets.GITHUB_TOKEN }} | oras login ghcr.io -u ${{ github.actor }} --password-stdin
+
+          cd "$(dirname "$SBOM")"
+          # Attach the raw SPDX JSON file directly to the image in the registry
+          oras attach \
+            --artifact-type application/vnd.spdx+json \
+            --annotation filename=$(basename "$SBOM") \
+            "${IMAGE}@${DIGEST}" \
+            "$(basename "$SBOM")"
+
+          # Retrieve the digest of the newly uploaded SBOM artifact
+          sbom_digest=$(oras discover --format json "${IMAGE}@${DIGEST}" | jq -r '.referrers[] | select(.artifactType == "application/vnd.spdx+json") | .digest')
+          echo "sbom_digest=${sbom_digest}" >> $GITHUB_OUTPUT
+
+      - name: Sign SBOM OCI Artifact
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        env:
+          COSIGN_EXPERIMENTAL: false
+          COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+          IMAGE_FULL: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          SBOM_DIGEST: ${{ steps.upload-sbom.outputs.sbom_digest }}
+        run: |
+          cosign sign -y --key env://COSIGN_PRIVATE_KEY ${IMAGE_FULL}@${SBOM_DIGEST}
 
       - name: Add SBOM Attestation
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
@@ -213,3 +308,11 @@ jobs:
             --type spdxjson \
             --key env://COSIGN_PRIVATE_KEY \
             "${IMAGE}@${DIGEST}"
+
+      - name: GitHub Native Attestation
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 #v4.1.0
+        with:
+          subject-name: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
