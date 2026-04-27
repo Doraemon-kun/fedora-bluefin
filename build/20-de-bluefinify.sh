@@ -72,7 +72,7 @@ if [[ -f /usr/lib/os-release ]]; then
     sed -i 's|SUPPORT_URL=".*"|SUPPORT_URL="https://ask.fedoraproject.org/"|g' /usr/lib/os-release
     sed -i 's|BUG_REPORT_URL=".*"|BUG_REPORT_URL="https://bugzilla.redhat.com/"|g' /usr/lib/os-release
     # IDs
-    sed -i 's/^ID=bluefin/ID=fedora-bluefin/g' /usr/lib/os-release
+    sed -i 's/^ID=bluefin/ID=fedora/g' /usr/lib/os-release
     sed -i 's/^VARIANT_ID=.*/VARIANT_ID=fedora-bluefin/g' /usr/lib/os-release
     sed -i 's/^IMAGE_ID=.*/IMAGE_ID=fedora-bluefin/g' /usr/lib/os-release
     # Build Dates

@@ -177,7 +177,7 @@ jobs:
 
       - name: Run Rechunker
         id: rechunk
-        uses: hhd-dev/rechunk@master
+        uses: hhd-dev/rechunk@5fbe1d3a639615d2548d83bc888360de6267b1a2
         with:
           ref: '${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
           labels: ${{ steps.metadata.outputs.labels }}
@@ -221,11 +221,14 @@ jobs:
         run: |
           IMAGE_URL="docker://${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
 
+          OCI_SOURCE="oci:${{ steps.rechunk.outputs.location }}:${{ env.DEFAULT_TAG }}"
+
+          sudo apt-get install skopeo
           # Skopeo securely copies the OCI directory straight to GitHub Container Registry
           for tag in ${{ steps.metadata.outputs.tags }}; do
             skopeo copy \
               --dest-creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
-              oci:${{ steps.rechunk.outputs.location }} \
+              "$OCI_SOURCE" \
               $IMAGE_URL:$tag
           done
 
@@ -278,8 +281,13 @@ jobs:
             "${IMAGE}@${DIGEST}" \
             "$(basename "$SBOM")"
 
-          # Retrieve the digest of the newly uploaded SBOM artifact
-          sbom_digest=$(oras discover --format json "${IMAGE}@${DIGEST}" | jq -r '.referrers[] | select(.artifactType == "application/vnd.spdx+json") | .digest')
+          # Retrieve the digest of the uploaded SBOM artifact.
+          # Multiple SPDX referrers may exist over time, so select exactly one digest.
+          sbom_digest=$(oras discover --format json "${IMAGE}@${DIGEST}" | jq -er '[.referrers[] | select(.artifactType == "application/vnd.spdx+json") | .digest] | .[-1]')
+          if [ -z "${sbom_digest}" ]; then
+            echo "No SPDX SBOM referrer found for ${IMAGE}@${DIGEST}" >&2
+            exit 1
+          fi
           echo "sbom_digest=${sbom_digest}" >> $GITHUB_OUTPUT
 
       - name: Sign SBOM OCI Artifact
