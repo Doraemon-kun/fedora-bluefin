@@ -31,6 +31,10 @@ rm -rf /var/lib/dnf /var/cache/libdnf5 /run/dnf
 
 # Removing GNOME gschema from Bluefin and regenerate the gschemas
 rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
+cat <<EOF > /usr/share/glib-2.0/schemas/99-window-buttons.gschema.override
+[org.gnome.desktop.wm.preferences]
+button-layout=':minimize,maximize,close'
+EOF
 glib-compile-schemas /usr/share/glib-2.0/schemas
 
 # Remove Dconf database files
@@ -59,19 +63,33 @@ rm -rf /etc/skel/.config/Code
 
 # os-release back to Fedora
 if [[ -f /usr/lib/os-release ]]; then
-    # Change Pretty Name
-    sed -i 's/PRETTY_NAME="Bluefin"/PRETTY_NAME="Fedora Linux"/g' /usr/lib/os-release
-    # Change Bug Report URL back to Fedora
-    sed -i 's/BUG_REPORT_URL="https:\/\/github.com\/ublue-os\/bluefin\/issues"/BUG_REPORT_URL="https:\/\/bugzilla.redhat.com\/"/g' /usr/lib/os-release
-    # Change Home URL back to Fedora
-    sed -i 's/HOME_URL="https:\/\/projectbluefin.io"/HOME_URL="https:\/\/fedoraproject.org\/"/g' /usr/lib/os-release
-    # Clean up the Name
+    # Name and Pretty name
     sed -i 's/NAME="Bluefin"/NAME="Fedora Linux"/g' /usr/lib/os-release
+    sed -i 's/PRETTY_NAME="Bluefin/PRETTY_NAME="Fedora Linux/g' /usr/lib/os-release
+    # URLs
+    sed -i 's|HOME_URL=".*"|HOME_URL="https://fedoraproject.org/"|g' /usr/lib/os-release
+    sed -i 's|DOCUMENTATION_URL=".*"|DOCUMENTATION_URL="https://docs.fedoraproject.org/en-US/fedora/latest/"|g' /usr/lib/os-release
+    sed -i 's|SUPPORT_URL=".*"|SUPPORT_URL="https://ask.fedoraproject.org/"|g' /usr/lib/os-release
+    sed -i 's|BUG_REPORT_URL=".*"|BUG_REPORT_URL="https://bugzilla.redhat.com/"|g' /usr/lib/os-release
+    # IDs
+    sed -i 's/^ID=bluefin/ID=fedora/g' /usr/lib/os-release
+    sed -i 's/^VARIANT_ID=.*/VARIANT_ID=fedora-bluefin/g' /usr/lib/os-release
+    sed -i 's/^IMAGE_ID=.*/IMAGE_ID=fedora-bluefin/g' /usr/lib/os-release
+    # Build Dates
+    FEDORA_MAJOR_VERSION=$(grep '^VERSION_ID=' /usr/lib/os-release | cut -d= -f2 | tr -d '"')
+    BUILD_DATE=$(date +%Y%m%d)
+    NEW_VERSION="${FEDORA_MAJOR_VERSION}.${BUILD_DATE}.fb.0"
+    sed -i "s/^VERSION=.*/VERSION=\"${NEW_VERSION}\"/" /usr/lib/os-release
+    sed -i "s/^OSTREE_VERSION=.*/OSTREE_VERSION='${NEW_VERSION}'/" /usr/lib/os-release
 fi
 
 # Cleanup image-info
 if [[ -f /usr/share/ublue-os/image-info.json ]]; then
     sed -i 's/"bluefin"/"fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
+    sed -i 's/"bluefin-dx"/"fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
+    sed -i 's/"ublue-os"/"doraemon-kun"/g' /usr/share/ublue-os/image-info.json
+    sed -i 's/ghcr.io\/ublue-os\/bluefin"/ghcr.io\/doraemon-kun\/fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
+    sed -i 's/ghcr.io\/ublue-os\/bluefin-dx"/ghcr.io\/doraemon-kun\/fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
 fi
 
 echo "::endgroup::"
