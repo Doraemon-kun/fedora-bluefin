@@ -31,6 +31,10 @@ rm -rf /var/lib/dnf /var/cache/libdnf5 /run/dnf
 
 # Removing GNOME gschema from Bluefin and regenerate the gschemas
 rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
+cat <<EOF > /usr/share/glib-2.0/schemas/99-window-buttons.gschema.override
+[org.gnome.desktop.wm.preferences]
+button-layout=':minimize,maximize,close'
+EOF
 glib-compile-schemas /usr/share/glib-2.0/schemas
 
 # Remove Dconf database files
