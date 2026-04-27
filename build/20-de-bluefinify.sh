@@ -71,7 +71,7 @@ fi
 
 # Cleanup image-info
 if [[ -f /usr/share/ublue-os/image-info.json ]]; then
-    sed -i 's/bluefin/fedora-bluefin/g' /usr/share/ublue-os/image-info.json
+    sed -i 's/"bluefin"/"fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
 fi
 
 echo "::endgroup::"
