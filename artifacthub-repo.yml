@@ -2,7 +2,6 @@
 # Sign up and add the Repository ID to the right field. Owners fields are optional.
 # Examples: https://artifacthub.io/packages/search?ts_query_web=ublue&sort=relevance&page=1 
 
-#repositoryID: finpilot # Fill in with your own credentials
-#owners: # (optional, used to claim repository ownership)
-#  - name: Jane Containerface
-#    email: jane@blueuniversal.com
+repositoryID: df34d014-32cc-45f6-9e6d-2ef08a5604c5 # Fill in with your own credentials
+owners: # (optional, used to claim repository ownership)
+  - name: Lê Phạm Anh Tuấn
