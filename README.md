@@ -303,6 +303,8 @@ This template follows the **multi-stage build architecture** from @projectbluefi
 - **Reproducibility**: Renovate automatically updates OCI tags to SHA digests
 - **Consistency**: Share components across Bluefin, Aurora, and custom images
 
+Though the clause on Reproducibility might not apply here...
+
 ### OCI Container Resources
 
 The template imports files from these OCI containers at build time:
