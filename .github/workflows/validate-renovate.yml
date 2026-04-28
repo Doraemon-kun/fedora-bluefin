@@ -1,4 +1,6 @@
 name: Validate Renovate Config
+permissions:
+  contents: read
 
 on:
   pull_request:
