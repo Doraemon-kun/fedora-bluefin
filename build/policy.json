@@ -1,0 +1,17 @@
+{
+    "default": [
+        {
+            "type": "insecureAcceptAnything"
+        }
+    ],
+    "transports": {
+        "docker": {
+            "ghcr.io/doraemon-kun": [
+                {
+                    "type": "sigstoreSigned",
+                    "keyPath": "/usr/etc/pki/containers/doraemon-kun.pub"
+                }
+            ]
+        }
+    }
+}

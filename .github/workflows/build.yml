@@ -121,7 +121,7 @@ jobs:
           done
 
           # Build natively in the system root storage
-          sudo podman build "${BUILD_ARGS[@]}" -t ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} -f ./Containerfile .
+          sudo podman build --squash "${BUILD_ARGS[@]}" -t ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} -f ./Containerfile .
 
       # Tag for registry
       #- name: Tag for registry

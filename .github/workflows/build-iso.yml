@@ -34,28 +34,144 @@ jobs:
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
 
-      - name: Prepare iso.toml
+      - name: Build temporary ISO-ready image
         run: |
-          # Replaces the placeholder in iso.toml
-          IMAGE_URL="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
-          sed -i "s|@@IMAGE_URL@@|${IMAGE_URL}|g" ./iso/iso.toml
+          IMAGE_REF="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+
+          # 1. Write the FROM line and ENV with variables injected
+          echo "FROM $IMAGE_REF" > Containerfile.iso
+          echo "ENV INSTALL_IMAGE_REF=$IMAGE_REF" >> Containerfile.iso
+
+          # 2. Append the rest of the file EXACTLY as written
+          cat <<'EOF' >> Containerfile.iso
+
+          # Install all LiveCD, Installer, and Storage dependencies
+          RUN dnf install -y \
+              dracut-live \
+              anaconda-live \
+              libblockdev-btrfs \
+              libblockdev-lvm \
+              libblockdev-dm \
+              livesys-scripts \
+              xorriso \
+              isomd5sum \
+              grub2-efi-x64-cdboot \
+              grub2-pc \
+              podman \
+              mokutil \
+              jq
+
+          # Mount /proc/sys rw for bwrap and pull the image directly into containers-storage
+          RUN mount -o remount,rw /proc/sys && \
+              podman pull ${INSTALL_IMAGE_REF}
+
+          # Install the complete list of Bluefin Stable Flatpaks
+          RUN curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo && \
+              flatpak install -y --noninteractive flathub \
+                  com.github.PintaProject.Pinta \
+                  com.github.tchx84.Flatseal \
+                  com.mattjakeman.ExtensionManager \
+                  com.ranfdev.DistroShelf \
+                  io.github.flattool.Ignition \
+                  io.github.flattool.Warehouse \
+                  io.github.kolunmi.Bazaar \
+                  io.gitlab.adhami3310.Impression \
+                  io.missioncenter.MissionCenter \
+                  it.mijorus.smile \
+                  org.gnome.Calculator \
+                  org.gnome.Calendar \
+                  org.gnome.Characters \
+                  org.gnome.Connections \
+                  org.gnome.Contacts \
+                  org.gnome.DejaDup \
+                  org.gnome.FileRoller \
+                  org.gnome.Firmware \
+                  org.gnome.Logs \
+                  org.gnome.Loupe \
+                  org.gnome.Maps \
+                  org.gnome.NautilusPreviewer \
+                  org.gnome.Papers \
+                  org.gnome.Showtime \
+                  org.gnome.SimpleScan \
+                  org.gnome.Snapshot \
+                  org.gnome.SoundRecorder \
+                  org.gnome.TextEditor \
+                  org.gnome.Weather \
+                  org.gnome.baobab \
+                  org.gnome.clocks \
+                  org.gnome.font-viewer \
+                  org.mozilla.Thunderbird \
+                  org.mozilla.firefox \
+                  page.tesk.Refine
+
+          # Configure Anaconda & inject the SecureBoot Enrollment script
+          RUN echo "ostreecontainer --url=${INSTALL_IMAGE_REF} --transport=containers-storage --no-signature-verification" > /usr/share/anaconda/interactive-defaults.ks && \
+              echo "bootc switch --mutate-in-place --transport registry ${INSTALL_IMAGE_REF}" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "%post" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "mkdir -p /etc/pki/akmods/certs/" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "curl -Lo /etc/pki/akmods/certs/ublue_pubkey.der https://github.com/ublue-os/akmods/raw/main/certs/public_key.der" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "if [ -d '/sys/firmware/efi/efivars' ]; then" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "    printf 'ublue\nublue\n' | mokutil --import /etc/pki/akmods/certs/ublue_pubkey.der || true" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "fi" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "%end" >> /usr/share/anaconda/interactive-defaults.ks
+
+          # Mount /var/lib/flatpak as readonly to prevent tainting during Live session
+          RUN echo -e "[Mount]\nType=none\nWhat=/var/lib/flatpak\nWhere=/var/lib/flatpak\nOptions=bind,ro\n[Install]\nWantedBy=multi-user.target" > /etc/systemd/system/var-lib-flatpak.mount && \
+              systemctl enable var-lib-flatpak.mount
+
+          # Regenerate initramfs for LiveCD boot
+          RUN kernel=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version') && \
+              DRACUT_NO_XATTR=1 dracut -v --force --zstd --reproducible --no-hostonly \
+                  --add "dmsquash-live dmsquash-live-autooverlay" \
+                  "/usr/lib/modules/${kernel}/initramfs.img" "${kernel}"
+
+          # Stage EFI Binaries
+          RUN mkdir -p /boot/efi && \
+              cp -av /usr/lib/efi/*/*/EFI /boot/efi/ && \
+              cp -v /boot/efi/EFI/fedora/grubx64.efi /boot/efi/EFI/BOOT/fbx64.efi
+
+          # Configure Livesys to auto-login to GNOME Desktop
+          RUN sed -i "s/^livesys_session=.*/livesys_session=gnome/" /etc/sysconfig/livesys && \
+              systemctl enable livesys.service livesys-late.service
+
+          # Expand /var/tmp in RAM so OSTree doesn't run out of space during installation
+          RUN rm -rf /var/tmp || true && \
+              mkdir -p /var/tmp && \
+              echo -e "[Unit]\nDescription=Larger tmpfs for /var/tmp on live system\n[Mount]\nWhat=tmpfs\nWhere=/var/tmp\nType=tmpfs\nOptions=size=50%%,nr_inodes=1m,x-systemd.graceful-option=usrquota\n[Install]\nWantedBy=local-fs.target" > /etc/systemd/system/var-tmp.mount && \
+              systemctl enable var-tmp.mount
+          EOF
+
+          # Build it into root's storage
+          sudo podman build --cap-add sys_admin --security-opt label=disable -t local-image -f Containerfile.iso .
 
       - name: Build ISO
         id: build
-        # We use the bootc-image-builder-action as requested
-        uses: osbuild/bootc-image-builder-action@f579f3d302eaebc5a7a87bd29b98ee07b09a3e92 # main
+        uses: Zeglius/titanoboa@7737f4748458252ac827dca14b3d6dd09298472a # revamp-pr
         with:
-          # Assuming you have an iso.toml based on standard ublue setups
-          config-file: ./iso/iso.toml
-          image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
-          # anaconda-iso generates the standard Fedora-style installer ISO
-          types: anaconda-iso
-          rootfs: btrfs
+          # Titanoboa only needs the image reference; configuration is pulled from inside the image
+          image-ref: local-image
+
+      - name: Prepare Staging Directory
+        run: |
+          mkdir -p upload_staging
+          BASE_NAME="${IMAGE_NAME}-${IMAGE_TAG}-amd64"
+
+          # 1. Copy and rename the generated ISO
+          # Titanoboa outputs the path via 'iso-dest'
+          ISO_SRC="${{ steps.build.outputs['iso-dest'] }}"
+          ISO_DEST="upload_staging/${BASE_NAME}.iso"
+          cp "$ISO_SRC" "$ISO_DEST"
+
+          # 2. Create the SHA256 Checksum file
+          cd upload_staging
+          sha256sum "${BASE_NAME}.iso" > "${BASE_NAME}.iso.sha256"
+          cd ..
+
+          # Export the staging directory path for rclone
+          echo "STAGING_DIR=upload_staging" >> "$GITHUB_ENV"
 
       - name: Upload ISO
         shell: bash
-        # Rclone dynamically creates an "R2" remote using these environment variables
         env:
           RCLONE_CONFIG_R2_TYPE: s3
           RCLONE_CONFIG_R2_PROVIDER: Cloudflare
@@ -64,10 +180,8 @@ jobs:
           RCLONE_CONFIG_R2_REGION: auto
           RCLONE_CONFIG_R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
           R2_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
-          SOURCE_DIR: ${{ steps.build.outputs['output-directory'] }}
         run: |
           sudo apt-get update
           sudo apt-get install -y rclone
 
-          # We copy the generated output to the bucket specified in your secrets
-          rclone copy "$SOURCE_DIR" "R2:$R2_BUCKET"
+          rclone copy "$STAGING_DIR" "R2:$R2_BUCKET"

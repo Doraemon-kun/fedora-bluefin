@@ -59,6 +59,15 @@ systemctl enable podman.socket
 
 echo "::endgroup::"
 
+echo "::group:: Setup Cosign Key"
+# Install the custom cosign public key to the system
+if [ -f /ctx/cosign.pub ]; then
+    mkdir -p /usr/etc/pki/containers/
+    cp /ctx/cosign.pub /usr/etc/pki/containers/doraemon-kun.pub
+    cp /ctx/build/policy.json /usr/etc/containers/policy.json
+fi
+echo "::endgroup::"
+
 # Restore default glob behavior
 shopt -u nullglob
 
