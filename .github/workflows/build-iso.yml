@@ -40,7 +40,7 @@ jobs:
           IMAGE_URL="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
           sed -i "s|@@IMAGE_URL@@|${IMAGE_URL}|g" ./iso/iso.toml
 
-      - name: Build ISO using bootc-image-builder
+      - name: Build ISO
         id: build
         # We use the bootc-image-builder-action as requested
         uses: osbuild/bootc-image-builder-action@f579f3d302eaebc5a7a87bd29b98ee07b09a3e92 # main
@@ -51,8 +51,9 @@ jobs:
           chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
           # anaconda-iso generates the standard Fedora-style installer ISO
           types: anaconda-iso
+          rootfs: btrfs
 
-      - name: Upload ISO to Cloudflare R2 (S3)
+      - name: Upload ISO
         shell: bash
         # Rclone dynamically creates an "R2" remote using these environment variables
         env:
