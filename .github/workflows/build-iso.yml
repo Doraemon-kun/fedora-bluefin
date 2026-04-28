@@ -34,28 +34,34 @@ jobs:
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
 
-      - name: Prepare iso.toml
-        run: |
-          # Replaces the placeholder in iso.toml
-          IMAGE_URL="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
-          sed -i "s|@@IMAGE_URL@@|${IMAGE_URL}|g" ./iso/iso.toml
-
       - name: Build ISO
         id: build
-        # We use the bootc-image-builder-action as requested
-        uses: osbuild/bootc-image-builder-action@f579f3d302eaebc5a7a87bd29b98ee07b09a3e92 # main
+        uses: Zeglius/titanoboa@7737f4748458252ac827dca14b3d6dd09298472a # revamp-pr
         with:
-          # Assuming you have an iso.toml based on standard ublue setups
-          config-file: ./iso/iso.toml
-          image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
-          # anaconda-iso generates the standard Fedora-style installer ISO
-          types: anaconda-iso
-          rootfs: btrfs
+          # Titanoboa only needs the image reference; configuration is pulled from inside the image
+          image-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      - name: Prepare Staging Directory
+        run: |
+          mkdir -p upload_staging
+          BASE_NAME="${IMAGE_NAME}-${IMAGE_TAG}-amd64"
+
+          # 1. Copy and rename the generated ISO
+          # Titanoboa outputs the path via 'iso-dest'
+          ISO_SRC="${{ steps.build.outputs['iso-dest'] }}"
+          ISO_DEST="upload_staging/${BASE_NAME}.iso"
+          cp "$ISO_SRC" "$ISO_DEST"
+
+          # 2. Create the SHA256 Checksum file
+          cd upload_staging
+          sha256sum "${BASE_NAME}.iso" > "${BASE_NAME}.iso.sha256"
+          cd ..
+
+          # Export the staging directory path for rclone
+          echo "STAGING_DIR=upload_staging" >> "$GITHUB_ENV"
 
       - name: Upload ISO
         shell: bash
-        # Rclone dynamically creates an "R2" remote using these environment variables
         env:
           RCLONE_CONFIG_R2_TYPE: s3
           RCLONE_CONFIG_R2_PROVIDER: Cloudflare
@@ -64,10 +70,8 @@ jobs:
           RCLONE_CONFIG_R2_REGION: auto
           RCLONE_CONFIG_R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
           R2_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
-          SOURCE_DIR: ${{ steps.build.outputs['output-directory'] }}
         run: |
           sudo apt-get update
           sudo apt-get install -y rclone
 
-          # We copy the generated output to the bucket specified in your secrets
-          rclone copy "$SOURCE_DIR" "R2:$R2_BUCKET"
+          rclone copy "$STAGING_DIR" "R2:$R2_BUCKET"
