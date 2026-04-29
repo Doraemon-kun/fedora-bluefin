@@ -108,8 +108,8 @@ jobs:
 
           # Configure Anaconda & inject the SecureBoot Enrollment script
           RUN echo "ostreecontainer --url=${INSTALL_IMAGE_REF} --transport=containers-storage --no-signature-verification" > /usr/share/anaconda/interactive-defaults.ks && \
-              echo "bootc switch --mutate-in-place --transport registry ${INSTALL_IMAGE_REF}" >> /usr/share/anaconda/interactive-defaults.ks && \
               echo "%post" >> /usr/share/anaconda/interactive-defaults.ks && \
+              echo "bootc switch --mutate-in-place --transport registry ${INSTALL_IMAGE_REF}" >> /usr/share/anaconda/interactive-defaults.ks && \
               echo "mkdir -p /etc/pki/akmods/certs/" >> /usr/share/anaconda/interactive-defaults.ks && \
               echo "curl -Lo /etc/pki/akmods/certs/ublue_pubkey.der https://github.com/ublue-os/akmods/raw/main/certs/public_key.der" >> /usr/share/anaconda/interactive-defaults.ks && \
               echo "if [ -d '/sys/firmware/efi/efivars' ]; then" >> /usr/share/anaconda/interactive-defaults.ks && \
