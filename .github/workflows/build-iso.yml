@@ -17,6 +17,8 @@ jobs:
     permissions:
       contents: read
       packages: read
+      id-token: write
+      attestations: write
 
     steps:
       - name: Maximize build space
@@ -157,7 +159,6 @@ jobs:
           BASE_NAME="${IMAGE_NAME}-${IMAGE_TAG}-amd64"
 
           # 1. Copy and rename the generated ISO
-          # Titanoboa outputs the path via 'iso-dest'
           ISO_SRC="${{ steps.build.outputs['iso-dest'] }}"
           ISO_DEST="upload_staging/${BASE_NAME}.iso"
           cp "$ISO_SRC" "$ISO_DEST"
@@ -167,8 +168,32 @@ jobs:
           sha256sum "${BASE_NAME}.iso" > "${BASE_NAME}.iso.sha256"
           cd ..
 
-          # Export the staging directory path for rclone
+          # Export the staging directory path and base name
           echo "STAGING_DIR=upload_staging" >> "$GITHUB_ENV"
+          echo "BASE_NAME=${BASE_NAME}" >> "$GITHUB_ENV"
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@cad07c2e89fa2edd6e2d7bab4c1aa38e53f76003 # v4.1.1
+
+      - name: Generate Cosign Signing Config
+        run: cosign signing-config create --with-default-services --no-default-rekor --out ${GITHUB_WORKSPACE}/signing-config.json
+
+      - name: Sign ISO
+        env:
+          COSIGN_EXPERIMENTAL: false
+          COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+        run: |
+          # Sign the ISO and output the signature to the staging directory so it gets uploaded to R2 automatically
+          cosign sign-blob -y \
+            --signing-config ${GITHUB_WORKSPACE}/signing-config.json \
+            --key env://COSIGN_PRIVATE_KEY \
+            $STAGING_DIR/${BASE_NAME}.iso > $STAGING_DIR/${BASE_NAME}.iso.sig
+
+      - name: Attest ISO
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: upload_staging/${{ env.BASE_NAME }}.iso
 
       - name: Upload ISO
         shell: bash

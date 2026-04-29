@@ -27,8 +27,12 @@ concurrency:
 
 jobs:
   build_push:
-    name: Build and push image
+    name: build
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        base_image: [bluefin, bluefin-dx]
 
     permissions:
       contents: read
@@ -42,7 +46,8 @@ jobs:
         run: |
           # Lowercase the image uri
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
-          echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
+          # Dynamically output fedora-bluefin and fedora-bluefin-dx based on matrix
+          echo "IMAGE_NAME=fedora-${{ matrix.base_image }}" >> ${GITHUB_ENV}
 
       # These stage versions are pinned by https://github.com/renovatebot/renovate
       - name: Checkout
@@ -120,6 +125,9 @@ jobs:
             fi
           done
 
+          # Pass the matrix base image into Containerfile
+          BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${{ matrix.base_image }}")
+
           # Build natively in the system root storage
           sudo podman build --squash "${BUILD_ARGS[@]}" -t ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} -f ./Containerfile .
 
@@ -179,6 +187,7 @@ jobs:
         uses: hhd-dev/rechunk@5fbe1d3a639615d2548d83bc888360de6267b1a2
         with:
           ref: '${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
+          prev-ref: 'ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
           labels: ${{ steps.metadata.outputs.labels }}
 
       - name: Fix OCI Directory Permissions

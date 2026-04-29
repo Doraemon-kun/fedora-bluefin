@@ -82,10 +82,10 @@ fi
 # Cleanup image-info
 if [[ -f /usr/share/ublue-os/image-info.json ]]; then
     sed -i 's/"bluefin"/"fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
-    sed -i 's/"bluefin-dx"/"fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
+    sed -i 's/"bluefin-dx"/"fedora-bluefin-dx"/g' /usr/share/ublue-os/image-info.json
     sed -i 's/"ublue-os"/"doraemon-kun"/g' /usr/share/ublue-os/image-info.json
     sed -i 's/ghcr.io\/ublue-os\/bluefin"/ghcr.io\/doraemon-kun\/fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
-    sed -i 's/ghcr.io\/ublue-os\/bluefin-dx"/ghcr.io\/doraemon-kun\/fedora-bluefin"/g' /usr/share/ublue-os/image-info.json
+    sed -i 's/ghcr.io\/ublue-os\/bluefin-dx"/ghcr.io\/doraemon-kun\/fedora-bluefin-dx"/g' /usr/share/ublue-os/image-info.json
 fi
 
 # Clean stuff that DNF left behind

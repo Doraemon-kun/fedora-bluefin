@@ -34,6 +34,10 @@
 # See: https://docs.projectbluefin.io/contributing/ for architecture diagram
 ###############################################################################
 
+# Declare sample build stage for Renovate
+ARG BASE_IMAGE_NAME=bluefin
+ARG BASE_IMAGE_TAG=latest
+
 # Context stage - combine local and imported OCI container resources
 FROM scratch AS ctx
 
@@ -44,7 +48,7 @@ COPY --from=ghcr.io/projectbluefin/common:latest@sha256:6db2b568513789868023ecc8
 COPY --from=ghcr.io/ublue-os/brew:latest@sha256:7d15cef4485d33f5a03f734b7f89cb02ab0cb694aa0115c12bf42f5fed5e9e08 /system_files /oci/brew
 
 # Base Image - GNOME included
-FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:ac150d6f42f438ea2db0af373c8ba31fec201879d7dd35e4dab1eab91b84400e
+FROM ghcr.io/ublue-os/${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
 
 ## Alternative base images, no desktop included (uncomment to use):
 # FROM ghcr.io/ublue-os/base-main:latest    
@@ -52,6 +56,9 @@ FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:ac150d6f42f438ea2db0af373c8ba31fe
 
 ## Alternative GNOME OS base image (uncomment to use):
 # FROM quay.io/gnome_infrastructure/gnome-build-meta:gnomeos-nightly
+
+# Just in case: Bring the base image variable to the build stage
+ARG BASE_IMAGE_NAME
 
 ### /opt
 ## Some bootable images, like Fedora, have /opt symlinked to /var/opt, in order to
