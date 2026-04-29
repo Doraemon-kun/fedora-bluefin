@@ -194,6 +194,7 @@ jobs:
         run: |
           # Sign the ISO and output the signature to the staging directory so it gets uploaded to R2 automatically
           cosign sign-blob -y \
+            --tlog-upload=false \
             --key env://COSIGN_PRIVATE_KEY \
             $STAGING_DIR/${BASE_NAME}.iso \
             --output-signature $STAGING_DIR/${BASE_NAME}.iso.sig

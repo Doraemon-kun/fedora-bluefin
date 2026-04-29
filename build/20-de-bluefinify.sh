@@ -57,11 +57,15 @@ rm -f /usr/share/ublue-os/firefox-config/01-bluefin-global.js
 # VS Code settings
 rm -rf /etc/skel/.config/Code
 
+# Set default hostname to fedora
+echo "Fedora" > /usr/etc/hostname
+
 # os-release back to Fedora
 if [[ -f /usr/lib/os-release ]]; then
-    # Name and Pretty name
+    # Name, Pretty name and Hostname
     sed -i 's/NAME="Bluefin"/NAME="Fedora Linux"/g' /usr/lib/os-release
     sed -i 's/PRETTY_NAME="Bluefin/PRETTY_NAME="Fedora Linux/g' /usr/lib/os-release
+    sed -i 's/DEFAULT_HOSTNAME=.*/DEFAULT_HOSTNAME="Fedora"/' /usr/etc/machine-info
     # URLs
     sed -i 's|HOME_URL=".*"|HOME_URL="https://fedoraproject.org/"|g' /usr/lib/os-release
     sed -i 's|DOCUMENTATION_URL=".*"|DOCUMENTATION_URL="https://docs.fedoraproject.org/en-US/fedora/latest/"|g' /usr/lib/os-release
@@ -91,5 +95,16 @@ fi
 # Clean stuff that DNF left behind
 dnf5 -y clean all
 rm -rf /var/lib/dnf /var/cache/libdnf5 /run/dnf
+
+echo "::endgroup::"
+
+# Copy from Bluefin's
+echo "::group:: Regenerating Initramfs for Plymouth"
+
+KERNEL_SUFFIX=""
+QUALIFIED_KERNEL="$(rpm -qa | grep -P 'kernel-(|'"$KERNEL_SUFFIX"'-)(\d+\.\d+\.\d+)' | sed -E 's/kernel-(|'"$KERNEL_SUFFIX"'-)//')"
+export DRACUT_NO_XATTR=1
+/usr/bin/dracut --no-hostonly --kver "$QUALIFIED_KERNEL" --reproducible -v --add ostree -f "/usr/lib/modules/$QUALIFIED_KERNEL/initramfs.img"
+chmod 0600 "/usr/lib/modules/$QUALIFIED_KERNEL/initramfs.img"
 
 echo "::endgroup::"
