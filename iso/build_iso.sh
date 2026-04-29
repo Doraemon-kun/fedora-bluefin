@@ -55,9 +55,6 @@ glib-compile-schemas /usr/share/glib-2.0/schemas
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/sbin/liveinst || true
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/bin/liveinst || true
 
-# Force use Fedora icons
-sed -i 's|^Icon=.*|Icon=/usr/share/pixmaps/fedora-logo-icon.png|' /usr/share/applications/liveinst.desktop || true
-
 # 6. Construct Modular Kickstart
 mkdir -p /usr/share/anaconda/post-scripts/
 
