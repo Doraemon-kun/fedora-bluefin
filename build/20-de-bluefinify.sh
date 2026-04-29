@@ -57,15 +57,12 @@ rm -f /usr/share/ublue-os/firefox-config/01-bluefin-global.js
 # VS Code settings
 rm -rf /etc/skel/.config/Code
 
-# Set default hostname to fedora
-echo "Fedora" > /usr/etc/hostname
-
 # os-release back to Fedora
 if [[ -f /usr/lib/os-release ]]; then
     # Name, Pretty name and Hostname
     sed -i 's/NAME="Bluefin"/NAME="Fedora Linux"/g' /usr/lib/os-release
     sed -i 's/PRETTY_NAME="Bluefin/PRETTY_NAME="Fedora Linux/g' /usr/lib/os-release
-    sed -i 's/DEFAULT_HOSTNAME=.*/DEFAULT_HOSTNAME="Fedora"/' /usr/etc/machine-info
+    sed -i 's/DEFAULT_HOSTNAME=.*/DEFAULT_HOSTNAME="fedora"/' /usr/lib/os-release
     # URLs
     sed -i 's|HOME_URL=".*"|HOME_URL="https://fedoraproject.org/"|g' /usr/lib/os-release
     sed -i 's|DOCUMENTATION_URL=".*"|DOCUMENTATION_URL="https://docs.fedoraproject.org/en-US/fedora/latest/"|g' /usr/lib/os-release

@@ -36,7 +36,8 @@
 
 # Declare sample build stage for Renovate
 ARG BASE_IMAGE_NAME=bluefin
-ARG BASE_IMAGE_TAG=latest@sha256:d601ba9ab52c5554a5ca29a5edd43bb900f9d15984278c94f0fc2c804049324b
+FROM ghcr.io/ublue-os/bluefin:latest AS base-bluefin
+FROM ghcr.io/ublue-os/bluefin-dx:latest AS base-bluefin-dx
 
 # Context stage - combine local and imported OCI container resources
 FROM scratch AS ctx
@@ -48,7 +49,8 @@ COPY --from=ghcr.io/projectbluefin/common:latest@sha256:6db2b568513789868023ecc8
 COPY --from=ghcr.io/ublue-os/brew:latest@sha256:7d15cef4485d33f5a03f734b7f89cb02ab0cb694aa0115c12bf42f5fed5e9e08 /system_files /oci/brew
 
 # Base Image - GNOME included
-FROM ghcr.io/ublue-os/${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
+# Dynamically select the correct base stage based on your GitHub Action matrix
+FROM base-${BASE_IMAGE_NAME}
 
 ## Alternative base images, no desktop included (uncomment to use):
 # FROM ghcr.io/ublue-os/base-main:latest    
