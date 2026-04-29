@@ -28,9 +28,9 @@ podman pull "${INSTALL_IMAGE_REF}"
 echo "Fetching Flatpaks from Bluefin Brewfile..."
 curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
 
-# Fetch the raw system-flatpaks.Brewfile, parse out the 'cask' names, and install them
+# Fetch the raw system-flatpaks.Brewfile, parse out the 'flatpak' names, and install them
 curl -sSL "https://raw.githubusercontent.com/projectbluefin/common/main/system_files/bluefin/usr/share/ublue-os/homebrew/system-flatpaks.Brewfile" | \
-    awk -F"['\"]" '/^cask/ {print $2}' | \
+    awk -F"['\"]" '/^flatpak/ {print $2}' | \
     xargs -r flatpak install -y --noninteractive flathub
 
 # 4. Disable Heavy Services & Sleep in LiveCD
