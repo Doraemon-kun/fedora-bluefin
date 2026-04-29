@@ -36,7 +36,7 @@
 
 # Declare sample build stage for Renovate
 ARG BASE_IMAGE_NAME=bluefin
-ARG BASE_IMAGE_TAG=latest
+ARG BASE_IMAGE_TAG=latest@sha256:f12d2a8b295f5ef041163462ac497da0886e7eec8d5b7d41b3d36eaee394345b
 
 # Context stage - combine local and imported OCI container resources
 FROM scratch AS ctx
