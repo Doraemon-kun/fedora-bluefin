@@ -45,23 +45,21 @@ jobs:
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
 
-      - name: Build temporary ISO-ready image
+      - name: Generate flatpak list
+        id: flatpak_list
         run: |
-          # Lowercase variables
-          export REGISTRY=${IMAGE_REGISTRY,,}
-          export NAME=${IMAGE_NAME,,}
-
-          sudo podman build \
-            --cap-add sys_admin \
-            --security-opt label=disable \
-            --build-arg INSTALL_IMAGE_REF="$REGISTRY/$NAME:$IMAGE_TAG" \
-            -t local-image -f iso/Containerfile.iso .
+          FILE_LIST="$(mktemp)"
+          curl -sSL "https://raw.githubusercontent.com/projectbluefin/common/main/system_files/bluefin/usr/share/ublue-os/homebrew/system-flatpaks.Brewfile" | \
+            awk -F"['\"]" '/^flatpak/ {print $2}' > "${FILE_LIST}"
+          echo "file_list_path=${FILE_LIST}" >> $GITHUB_OUTPUT
 
       - name: Build ISO
         id: build
-        uses: Zeglius/titanoboa@7737f4748458252ac827dca14b3d6dd09298472a # revamp-pr
+        uses: ublue-os/titanoboa@840217d97bd0bc9a52466508c54d8dda5c5ba2fd # main
         with:
-          image-ref: local-image
+          image-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          flatpaks-list: ${{ steps.flatpak_list.outputs.file_list_path }}
+          hook-post-rootfs: ${{ github.workspace }}/iso/build_iso.sh
 
       - name: Prepare Staging Directory
         run: |

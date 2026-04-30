@@ -3,6 +3,11 @@ set -eoux pipefail
 
 echo "=== Starting LiveCD Preparation ==="
 
+IMAGE_INFO="$(cat /usr/share/ublue-os/image-info.json)"
+IMAGE_TAG="$(jq -c -r '."image-tag"' <<<"$IMAGE_INFO")"
+IMAGE_REF="$(jq -c -r '."image-ref"' <<<"$IMAGE_INFO")"
+INSTALL_IMAGE_REF="${IMAGE_REF##*://}:${IMAGE_TAG}"
+
 # 1. Install Required Dependencies
 dnf install -y \
     dracut-live \
@@ -19,19 +24,6 @@ dnf install -y \
     mokutil \
     jq \
     rsync
-
-# 2. Pull the target image into containers-storage
-mount -o remount,rw /proc/sys
-podman pull "${INSTALL_IMAGE_REF}"
-
-# 3. Download and Install Flatpaks on the fly from Project Bluefin's Brewfile
-echo "Fetching Flatpaks from Bluefin Brewfile..."
-curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
-
-# Fetch the raw system-flatpaks.Brewfile, parse out the 'flatpak' names, and install them
-curl -sSL "https://raw.githubusercontent.com/projectbluefin/common/main/system_files/bluefin/usr/share/ublue-os/homebrew/system-flatpaks.Brewfile" | \
-    awk -F"['\"]" '/^flatpak/ {print $2}' | \
-    xargs -r flatpak install -y --noninteractive flathub
 
 # 4. Disable Heavy Services & Sleep in LiveCD
 systemctl disable rpm-ostree-countme.service tailscaled.service brew-upgrade.timer brew-update.timer brew-setup.service rpm-ostreed-automatic.timer || true
@@ -120,11 +112,5 @@ systemctl enable livesys.service livesys-late.service
 mkdir -p /boot/efi
 cp -av /usr/lib/efi/*/*/EFI /boot/efi/
 cp -v /boot/efi/EFI/fedora/grubx64.efi /boot/efi/EFI/BOOT/fbx64.efi
-
-# Regenerate Initramfs
-kernel=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version')
-DRACUT_NO_XATTR=1 dracut -v --force --zstd --reproducible --no-hostonly \
-    --add "dmsquash-live dmsquash-live-autooverlay" \
-    "/usr/lib/modules/${kernel}/initramfs.img" "${kernel}"
 
 echo "=== LiveCD Preparation Complete ==="

@@ -90,7 +90,6 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=tmpfs,dst=/tmp \
     /bin/bash -c "set -eu; shopt -s nullglob; for script in /ctx/build/*.sh; do bash \$script; done"
 
-COPY iso/iso.yaml /usr/lib/bootc-image-builder/iso.yaml
 ### LINTING
 ## Verify final image and contents are correct.
 RUN bootc container lint
