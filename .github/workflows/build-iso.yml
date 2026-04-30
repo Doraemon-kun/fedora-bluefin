@@ -114,7 +114,11 @@ jobs:
           RCLONE_CONFIG_R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
           R2_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
         run: |
+          echo "::group:: Getting rclone"
           sudo apt-get update
           sudo apt-get install -y rclone
+          echo "::endgroup::"
 
+          echo "::group:: Uploading to R2..."
           rclone copy "$STAGING_DIR" "R2:$R2_BUCKET"
+          echo "::endgroup::"
