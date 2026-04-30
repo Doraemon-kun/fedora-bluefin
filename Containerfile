@@ -41,7 +41,7 @@ FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:c8f5d80062bc62014c21dcae2f9b632ad
 
 # === For building VMware kernel modules ===
 FROM base-${BASE_IMAGE_NAME} AS vmware-builder
-ARG VMWARE_VERSION="workstation-25h2"
+ARG VMWARE_VERSION="workstation-17.6.3"
 RUN rpm-ostree install -y gcc make git wget bison flex elfutils-libelf-devel openssl-devel && \
     KERNEL_VERSION=$(ls /usr/lib/modules | grep -v 'modules.' | tail -n 1) && \
     VERSION=${KERNEL_VERSION%%-*} && \
