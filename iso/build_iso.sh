@@ -28,9 +28,9 @@ podman pull "${INSTALL_IMAGE_REF}"
 echo "Fetching Flatpaks from Bluefin Brewfile..."
 curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
 
-# Fetch the raw system-flatpaks.Brewfile, parse out the 'cask' names, and install them
+# Fetch the raw system-flatpaks.Brewfile, parse out the 'flatpak' names, and install them
 curl -sSL "https://raw.githubusercontent.com/projectbluefin/common/main/system_files/bluefin/usr/share/ublue-os/homebrew/system-flatpaks.Brewfile" | \
-    awk -F"['\"]" '/^cask/ {print $2}' | \
+    awk -F"['\"]" '/^flatpak/ {print $2}' | \
     xargs -r flatpak install -y --noninteractive flathub
 
 # 4. Disable Heavy Services & Sleep in LiveCD
@@ -54,9 +54,6 @@ glib-compile-schemas /usr/share/glib-2.0/schemas
 # Strip product version so Anaconda falls back to standard windowed mode rather than fullscreen kiosk
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/sbin/liveinst || true
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/bin/liveinst || true
-
-# Force use Fedora icons
-sed -i 's|^Icon=.*|Icon=/usr/share/pixmaps/fedora-logo-icon.png|' /usr/share/applications/liveinst.desktop || true
 
 # 6. Construct Modular Kickstart
 mkdir -p /usr/share/anaconda/post-scripts/
