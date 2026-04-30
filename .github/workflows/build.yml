@@ -187,7 +187,7 @@ jobs:
         uses: hhd-dev/rechunk@5fbe1d3a639615d2548d83bc888360de6267b1a2
         with:
           ref: '${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
-          prev-ref: 'ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
+          prev-ref: '${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
           labels: ${{ steps.metadata.outputs.labels }}
 
       - name: Fix OCI Directory Permissions
