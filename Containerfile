@@ -36,7 +36,7 @@
 
 # Declare sample build stage for Renovate
 ARG BASE_IMAGE_NAME=bluefin
-FROM ghcr.io/ublue-os/bluefin:latest@sha256:d601ba9ab52c5554a5ca29a5edd43bb900f9d15984278c94f0fc2c804049324b AS base-bluefin
+FROM ghcr.io/ublue-os/bluefin:latest@sha256:6e61926183660a0083e0b0b15378aef055402b987798ec19de3351f660acdc0f AS base-bluefin
 FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:c8f5d80062bc62014c21dcae2f9b632ad80716a5c5346072c31a009e0849ad27 AS base-bluefin-dx
 
 # Context stage - combine local and imported OCI container resources
