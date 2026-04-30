@@ -44,10 +44,12 @@ jobs:
     steps:
       - name: Prepare environment
         run: |
+          echo "::group:: Rewrite some GitHub environment variables"
           # Lowercase the image uri
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           # Dynamically output fedora-bluefin and fedora-bluefin-dx based on matrix
           echo "IMAGE_NAME=fedora-${{ matrix.base_image }}" >> ${GITHUB_ENV}
+          echo "::endgroup::"
 
       # These stage versions are pinned by https://github.com/renovatebot/renovate
       - name: Checkout
@@ -114,6 +116,7 @@ jobs:
       - name: Build Image
         id: build_image
         run: |
+          echo "::group:: Getting information on what build to build"
           # Read the multiline labels string into a bash array securely
           mapfile -t LABEL_ARRAY <<< "${{ steps.metadata.outputs.labels }}"
 
@@ -127,6 +130,7 @@ jobs:
 
           # Pass the matrix base image into Containerfile
           BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${{ matrix.base_image }}")
+          echo "::endgroup::"
 
           # Build natively in the system root storage
           sudo podman build --squash "${BUILD_ARGS[@]}" -t ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} -f ./Containerfile .
@@ -187,7 +191,7 @@ jobs:
         uses: hhd-dev/rechunk@5fbe1d3a639615d2548d83bc888360de6267b1a2
         with:
           ref: '${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
-          prev-ref: 'ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
+          prev-ref: '${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}'
           labels: ${{ steps.metadata.outputs.labels }}
 
       - name: Fix OCI Directory Permissions
@@ -227,11 +231,14 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         id: push
         run: |
+          echo "::group:: Installing skopeo"
           IMAGE_URL="docker://${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
 
           OCI_SOURCE="${{ steps.rechunk.outputs.ref }}"
 
           sudo apt-get install skopeo
+          echo "::endgroup::"
+          echo "::group:: Uploading to GHCR..."
           # Skopeo securely copies the OCI directory straight to GitHub Container Registry
           for tag in ${{ steps.metadata.outputs.tags }}; do
             skopeo copy \
@@ -239,6 +246,7 @@ jobs:
               "$OCI_SOURCE" \
               $IMAGE_URL:$tag
           done
+          echo "::endgroup::"
 
           # Retrieve the registry digest of the pushed image so Cosign can sign it
           DIGEST=$(skopeo inspect --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} $IMAGE_URL:${{ env.DEFAULT_TAG }} | jq -r .Digest)
