@@ -39,6 +39,26 @@ ARG BASE_IMAGE_NAME=bluefin
 FROM ghcr.io/ublue-os/bluefin:latest@sha256:6e61926183660a0083e0b0b15378aef055402b987798ec19de3351f660acdc0f AS base-bluefin
 FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:c8f5d80062bc62014c21dcae2f9b632ad80716a5c5346072c31a009e0849ad27 AS base-bluefin-dx
 
+# === For building VMware kernel modules ===
+FROM base-${BASE_IMAGE_NAME}
+ARG VMWARE_VERSION="workstation-25h2"
+RUN rpm-ostree install -y gcc make git wget bison flex elfutils-libelf-devel openssl-devel && \
+    KERNEL_VERSION=$(ls /usr/lib/modules | grep -v 'modules.' | tail -n 1) && \
+    VERSION=${KERNEL_VERSION%%-*} && \
+    REST=${KERNEL_VERSION#*-} && \
+    ARCH=${REST##*.} && \
+    RELEASE=${REST%.*} && \
+    KOJI_URL="https://kojipkgs.fedoraproject.org/packages/kernel/${VERSION}/${RELEASE}/${ARCH}/kernel-devel-${KERNEL_VERSION}.rpm" && \
+    echo "Downloading kernel-devel from: $KOJI_URL" && \
+    wget -q "$KOJI_URL" -O /tmp/kernel-devel.rpm && \
+    rpm-ostree install -y /tmp/kernel-devel.rpm && \
+    \
+    git clone -b ${VMWARE_VERSION} https://github.com/philipl/vmware-host-modules.git /tmp/vmware-modules && \
+    cd /tmp/vmware-modules && \
+    \
+    make VM_UNAME=${KERNEL_VERSION} && \
+    make install DESTDIR=/out VM_UNAME=${KERNEL_VERSION}
+
 # Context stage - combine local and imported OCI container resources
 FROM scratch AS ctx
 
@@ -72,6 +92,15 @@ ARG BASE_IMAGE_NAME
 ## by the package manager.
 
 # RUN rm /opt && mkdir /opt
+
+# Applying VMware kernel module
+COPY --from=builder /out/lib/modules /usr/lib/modules
+RUN KERNEL_VERSION=$(ls /usr/lib/modules | grep -v 'modules.' | tail -n 1) && \
+    # Update module dependencies mapped to the ostree /usr directory
+    depmod -a -b /usr ${KERNEL_VERSION} && \
+    # Ensure systemd-udev loads them automatically on boot
+    echo "vmmon" > /usr/lib/modules-load.d/vmware.conf && \
+    echo "vmnet" >> /usr/lib/modules-load.d/vmware.conf
 
 ### MODIFICATIONS
 ## Make modifications desired in your image and install packages by modifying the build scripts.
