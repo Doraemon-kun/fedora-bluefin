@@ -48,10 +48,14 @@ RUN rpm-ostree install -y gcc make git wget bison flex elfutils-libelf-devel ope
     REST=${KERNEL_VERSION#*-} && \
     ARCH=${REST##*.} && \
     RELEASE=${REST%.*} && \
-    KOJI_URL="https://kojipkgs.fedoraproject.org/packages/kernel/${VERSION}/${RELEASE}/${ARCH}/kernel-devel-${KERNEL_VERSION}.rpm" && \
-    echo "Downloading kernel-devel from: $KOJI_URL" && \
-    wget -q "$KOJI_URL" -O /tmp/kernel-devel.rpm && \
-    rpm-ostree install -y /tmp/kernel-devel.rpm && \
+    if ! rpm -q kernel-devel-${KERNEL_VERSION} > /dev/null 2>&1; then \
+        KOJI_URL="https://kojipkgs.fedoraproject.org/packages/kernel/${VERSION}/${RELEASE}/${ARCH}/kernel-devel-${KERNEL_VERSION}.rpm" && \
+        echo "Downloading kernel-devel from: $KOJI_URL" && \
+        wget -q "$KOJI_URL" -O /tmp/kernel-devel.rpm && \
+        rpm-ostree install -y /tmp/kernel-devel.rpm; \
+    else \
+        echo "kernel-devel-${KERNEL_VERSION} is already installed, skipping Koji download."; \
+    fi && \
     \
     git clone -b ${VMWARE_VERSION} https://github.com/philipl/vmware-host-modules.git /tmp/vmware-modules && \
     cd /tmp/vmware-modules && \
