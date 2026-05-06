@@ -36,7 +36,11 @@
 
 # Declare sample build stage for Renovate
 ARG BASE_IMAGE_NAME=bluefin
-FROM ghcr.io/ublue-os/bluefin:latest@sha256:bea093411c84bd29987e142a55797d042a8183babb68301351ff00b84877d267 AS base-bluefin
+FROM ghcr.io/ublue-os/bluefin:latest@sha256:e8b19cb4feef230983724e2981ff66e7ea874da6acc796cf38dca3553039c371 AS base-bluefin
+
+# This is just to make sure that these two guys
+# will not affect each other in the merge process.
+# Please do not remove this comment.
 FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:f4e98b0364f64b41c469f0b5fa44374bca07972db85b3ce5a938c7bfff985e8a AS base-bluefin-dx
 
 # === For building VMware kernel modules ===
