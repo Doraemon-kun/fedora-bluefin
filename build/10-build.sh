@@ -70,9 +70,10 @@ fi
 
 # Install the custom cosign public key to the system
 if [ -f /ctx/cosign.pub ]; then
-    mkdir -p /usr/etc/pki/containers/
-    cp /ctx/cosign.pub /usr/etc/pki/containers/doraemon-kun.pub
-    cp /ctx/build/policy.json /usr/etc/containers/policy.json
+    mkdir -p /etc/pki/containers/
+    cp /ctx/cosign.pub /etc/pki/containers/doraemon-kun.pub
+    mkdir -p /etc/containers/
+    cp /ctx/build/policy.json /etc/containers/policy.json
 fi
 echo "::endgroup::"
 
