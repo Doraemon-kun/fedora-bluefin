@@ -67,6 +67,12 @@ RUN rpm-ostree install -y gcc make git wget bison flex elfutils-libelf-devel ope
     make VM_UNAME=${KERNEL_VERSION} && \
     make install DESTDIR=/out VM_UNAME=${KERNEL_VERSION}
 
+COPY sb.pub /tmp/sb.pub
+RUN --mount=type=secret,id=mok_key \
+    KERNEL_VERSION=$(ls /usr/lib/modules | grep -v 'modules.' | tail -n 1) && \
+    /usr/src/kernels/${KERNEL_VERSION}/scripts/sign-file sha256 /run/secrets/mok_key /tmp/sb.pub /out/lib/modules/${KERNEL_VERSION}/misc/vmmon.ko && \
+    /usr/src/kernels/${KERNEL_VERSION}/scripts/sign-file sha256 /run/secrets/mok_key /tmp/sb.pub /out/lib/modules/${KERNEL_VERSION}/misc/vmnet.ko
+
 # Context stage - combine local and imported OCI container resources
 FROM scratch AS ctx
 
@@ -108,7 +114,8 @@ RUN KERNEL_VERSION=$(ls /usr/lib/modules | grep -v 'modules.' | tail -n 1) && \
     depmod -a -b /usr ${KERNEL_VERSION} && \
     # Ensure systemd-udev loads them automatically on boot
     echo "vmmon" > /usr/lib/modules-load.d/vmware.conf && \
-    echo "vmnet" >> /usr/lib/modules-load.d/vmware.conf
+    echo "vmnet" >> /usr/lib/modules-load.d/vmware.conf && \
+    echo "vmw_vmci" >> /usr/lib/modules-load.d/vmware.conf
 
 ### MODIFICATIONS
 ## Make modifications desired in your image and install packages by modifying the build scripts.

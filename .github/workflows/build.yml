@@ -115,6 +115,8 @@ jobs:
 
       - name: Build Image
         id: build_image
+        env:
+          MOK_PRIVATE_KEY: ${{ secrets.MOK_PRIVATE_KEY }}
         run: |
           echo "::group:: Getting information on what build to build"
           # Read the multiline labels string into a bash array securely
@@ -132,8 +134,17 @@ jobs:
           BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${{ matrix.base_image }}")
           echo "::endgroup::"
 
-          # Build natively in the system root storage
-          sudo podman build --squash "${BUILD_ARGS[@]}" -t ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} -f ./Containerfile .
+          # Decode the base64 secret and write it directly to a file
+          echo "$MOK_PRIVATE_KEY" | base64 -d > ./mok_private.key
+          chmod 600 ./mok_private.key
+
+          # Mount the physical file as a secret
+          sudo podman build --squash "${BUILD_ARGS[@]}" \
+            --secret id=mok_key,src=./mok_private.key \
+            -t ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} -f ./Containerfile .
+
+          # Clean up the key file immediately
+          rm -f ./mok_private.key
 
       # Tag for registry
       #- name: Tag for registry

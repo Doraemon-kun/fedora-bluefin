@@ -82,9 +82,16 @@ curl -Lo /etc/pki/akmods/certs/ublue_pubkey.der https://github.com/ublue-os/akmo
 tee /usr/share/anaconda/post-scripts/secureboot-enroll-key.ks <<'EOF'
 %post --erroronfail --nochroot
 set -oue pipefail
-if [[ -d "/sys/firmware/efi" ]] && [[ -f "/etc/pki/akmods/certs/ublue_pubkey.der" ]]; then
-    printf 'ublue\nublue\n' | mokutil --timeout -1 || true
-    printf 'ublue\nublue\n' | mokutil --import /etc/pki/akmods/certs/ublue_pubkey.der || true
+if [[ -d "/sys/firmware/efi" ]]; then
+    if [[ -f "/etc/pki/akmods/certs/ublue_pubkey.der" ]]; then
+        printf 'ublue\nublue\n' | mokutil --timeout -1 || true
+        printf 'ublue\nublue\n' | mokutil --import /etc/pki/akmods/certs/ublue_pubkey.der || true
+    fi
+
+    # Enroll the custom sb.pub from the deployed system image
+    if [[ -f "/mnt/sysimage/etc/pki/akmods/certs/sb.pub" ]]; then
+        printf 'ublue\nublue\n' | mokutil --import /mnt/sysimage/etc/pki/akmods/certs/sb.pub || true
+    fi
 fi
 %end
 EOF

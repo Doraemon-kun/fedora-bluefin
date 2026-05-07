@@ -49,6 +49,8 @@ echo "::group:: Install Packages"
 # Example using COPR with isolated pattern:
 # copr_install_isolated "ublue-os/staging" package-name
 
+dnf5 install -y xorg-x11-server-Xwayland libX11 libxcb libXext libXcursor libXrender libXi libXtst libXinerama libXrandr
+
 echo "::endgroup::"
 
 echo "::group:: System Configuration"
@@ -60,6 +62,12 @@ systemctl enable podman.socket
 echo "::endgroup::"
 
 echo "::group:: Setup Cosign Key"
+# Add custom MOK public key to the certificates directory
+if [ -f /ctx/sb.pub ]; then
+    mkdir -p /etc/pki/akmods/certs/
+    cp /ctx/sb.pub /etc/pki/akmods/certs/sb.pub
+fi
+
 # Install the custom cosign public key to the system
 if [ -f /ctx/cosign.pub ]; then
     mkdir -p /usr/etc/pki/containers/
