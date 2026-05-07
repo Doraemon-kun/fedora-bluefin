@@ -78,6 +78,8 @@ FROM scratch AS ctx
 
 COPY build /build
 COPY custom /custom
+COPY sb.pub /sb.pub
+COPY cosign.pub /cosign.pub
 # Copy from OCI containers to distinct subdirectories to avoid conflicts
 COPY --from=ghcr.io/projectbluefin/common:latest@sha256:47abba6e2a15e36efcb18255fefa7c65673337404719a925d74409c6e080929e /system_files /oci/common
 COPY --from=ghcr.io/ublue-os/brew:latest@sha256:7646a12d0369270ba479bde05d69e273af966a55178f283b0f717381d086ca7a /system_files /oci/brew
