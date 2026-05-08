@@ -74,6 +74,12 @@ if [ -f /ctx/cosign.pub ]; then
     cp /ctx/cosign.pub /etc/pki/containers/doraemon-kun.pub
     mkdir -p /etc/containers/
     cp /ctx/build/policy.json /etc/containers/policy.json
+    mkdir -p /etc/containers/registries.d
+    cat > /etc/containers/registries.d/doraemon-kun.yaml << 'EOF'
+docker:
+  ghcr.io/doraemon-kun:
+    use-sigstore-attachments: true
+EOF
 fi
 echo "::endgroup::"
 
