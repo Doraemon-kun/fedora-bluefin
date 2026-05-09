@@ -94,6 +94,8 @@ build $target_image=image_name $tag=default_tag:
         BUILD_ARGS+=("--build-arg" "SHA_HEAD_SHORT=$(git rev-parse --short HEAD)")
     fi
 
+    BUILD_ARGS+=("--build-arg" "BUILD_ITERATION=0")
+
     podman build \
         "${BUILD_ARGS[@]}" \
         --pull=newer \

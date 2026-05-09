@@ -88,6 +88,10 @@ COPY --from=ghcr.io/ublue-os/brew:latest@sha256:7646a12d0369270ba479bde05d69e273
 # Dynamically select the correct base stage based on your GitHub Action matrix
 FROM base-${BASE_IMAGE_NAME}
 
+# Add build iterations to be processed
+ARG BUILD_ITERATION=0
+ENV BUILD_ITERATION=$BUILD_ITERATION
+
 ## Alternative base images, no desktop included (uncomment to use):
 # FROM ghcr.io/ublue-os/base-main:latest    
 # FROM quay.io/centos-bootc/centos-bootc:stream10

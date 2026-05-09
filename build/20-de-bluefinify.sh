@@ -75,7 +75,8 @@ if [[ -f /usr/lib/os-release ]]; then
     # Build Dates
     FEDORA_MAJOR_VERSION=$(grep '^VERSION_ID=' /usr/lib/os-release | cut -d= -f2 | tr -d '"')
     BUILD_DATE=$(date +%Y%m%d)
-    NEW_VERSION="${FEDORA_MAJOR_VERSION}.${BUILD_DATE}.fb.0"
+    ITER_NUM=${BUILD_ITERATION:-0}
+    NEW_VERSION="${FEDORA_MAJOR_VERSION}.${BUILD_DATE}.fb.${ITER_NUM}"
     sed -i "s/^VERSION=.*/VERSION=\"${NEW_VERSION}\"/" /usr/lib/os-release
     sed -i "s/^OSTREE_VERSION=.*/OSTREE_VERSION='${NEW_VERSION}'/" /usr/lib/os-release
 fi

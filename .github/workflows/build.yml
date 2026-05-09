@@ -80,6 +80,42 @@ jobs:
           # https://linux.die.net/man/1/date
           echo "date=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)" >> $GITHUB_OUTPUT
 
+      - name: Calculate Daily Build Iteration
+        id: iteration
+        run: |
+          sudo apt-get update && sudo apt-get install -y skopeo
+          DATE=$(date -u +%Y%m%d)
+          echo "DATE_PREFIX=$DATE" >> $GITHUB_ENV
+          IMAGE_URL="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+
+          TAGS=$(skopeo list-tags --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} $IMAGE_URL 2>/dev/null | jq -r '.Tags[]' || echo "")
+
+          ITERATION=0
+          for tag in $TAGS; do
+              if [[ $tag =~ ^${DATE}(\.([0-9]+))?$ ]]; then
+                  SUFFIX="${BASH_REMATCH[2]}"
+                  if [[ -z "$SUFFIX" ]]; then
+                      VAL=0
+                  else
+                      VAL=$SUFFIX
+                  fi
+
+                  if (( VAL >= ITERATION )); then
+                      ITERATION=$((VAL + 1))
+                  fi
+              fi
+          done
+
+          echo "BUILD_ITERATION=$ITERATION" >> $GITHUB_ENV
+
+          if [ "$ITERATION" -eq 0 ]; then
+            echo "DATE_TAG=$DATE" >> $GITHUB_ENV
+          else
+            echo "DATE_TAG=${DATE}.${ITERATION}" >> $GITHUB_ENV
+          fi
+
+          echo "Calculated Iteration: $ITERATION"
+
       # Image metadata for https://artifacthub.io/ - This is optional but is highly recommended so we all can get a index of all the custom images
       # The metadata by itself is not going to do anything, you choose if you want your image to be on ArtifactHub or not.
       - name: Image Metadata
@@ -90,8 +126,8 @@ jobs:
           # Default tags are "$DEFAULT_TAG" and "$DEFAULT_TAG.$date".
           tags: |
             type=raw,value=${{ env.DEFAULT_TAG }}
-            type=raw,value=${{ env.DEFAULT_TAG }}.{{date 'YYYYMMDD'}}
-            type=raw,value={{date 'YYYYMMDD'}}
+            type=raw,value=${{ env.DEFAULT_TAG }}.${{ env.DATE_PREFIX }}
+            type=raw,value=${{ env.DATE_TAG }}
             type=sha,enable=${{ github.event_name == 'pull_request' }}
             type=ref,event=pr
           labels: |
@@ -132,6 +168,8 @@ jobs:
 
           # Pass the matrix base image into Containerfile
           BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${{ matrix.base_image }}")
+          # And the iterations
+          BUILD_ARGS+=("--build-arg" "BUILD_ITERATION=${{ env.BUILD_ITERATION }}")
           echo "::endgroup::"
 
           # Decode the base64 secret and write it directly to a file
