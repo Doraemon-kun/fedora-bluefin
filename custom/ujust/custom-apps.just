@@ -78,3 +78,30 @@ install-vscode:
 [group('Apps')]
 install-gimp:
     ujust install-flatpak org.gimp.GIMP
+
+[group('Apps')]
+install-vmware:
+    #!/usr/bin/env bash
+    set -e
+
+    echo "Creating rootful distrobox container 'vmware'..."
+    distrobox create -r -i quay.io/fedora/fedora:latest -n vmware -H ~/.distrobox/vmware --volume /lib/modules:/lib/modules:ro -ap "fontconfig dejavu-sans-fonts dejavu-sans-mono-fonts google-noto-sans-fonts alsa-lib libX11 libxcb libXext libXcursor libXrender libXi libXtst libXinerama libXrandr mesa-dri-drivers mesa-libGL mesa-vulkan-drivers kmod"
+
+    echo "Updating fontconfig cache inside the container..."
+    distrobox enter -r vmware -- fc-cache -f -v
+
+    echo ""
+    echo "==============================================================================="
+    echo " Environment is ready! You can now finish the VMware installation manually."
+    echo "==============================================================================="
+    echo " 1. Download VMware Workstation Pro 17.6.4 from the Broadcom portal."
+    echo " 2. Enter your new container with: distrobox enter --root vmware"
+    echo " 3. Run the downloaded VMware .bundle installer as root."
+    echo " 4. Start the network/USB services by running:"
+    echo "      sudo vmware-networks --start"
+    echo "      sudo vmware-usbarbitrator"
+    echo " 5. Run 'sudo vmware' to launch VMware Workstation."
+    echo ""
+    echo " IMPORTANT: Every time you restart the system or stop the container, you must "
+    echo " re-run step 4 inside the container before starting VMware."
+    echo "==============================================================================="

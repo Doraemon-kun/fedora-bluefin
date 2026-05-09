@@ -36,12 +36,12 @@
 
 # Declare sample build stage for Renovate
 ARG BASE_IMAGE_NAME=bluefin
-FROM ghcr.io/ublue-os/bluefin:latest@sha256:16ab7359c71932f37add57a608bc19e73521c48e6e2e8714ad52e491815d5026 AS base-bluefin
+FROM ghcr.io/ublue-os/bluefin:latest@sha256:2a994391e35d425fd4f49ec35f7db1442dfa6d7e21678426ed6edf3632ea0651 AS base-bluefin
 
 # This is just to make sure that these two guys
 # will not affect each other in the merge process.
 # Please do not remove this comment.
-FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:01833c10d1d964f693dae9e6f9eeee3b1a3fdaba60b38e11c5570dd91dde82bb AS base-bluefin-dx
+FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:2533480e915fe3b15d7fdbae4187027df48ad484ecd2038fe6fe2a9c836497e8 AS base-bluefin-dx
 
 # === For building VMware kernel modules ===
 FROM base-${BASE_IMAGE_NAME} AS vmware-builder
@@ -81,7 +81,7 @@ COPY custom /custom
 COPY sb.pub /sb.pub
 COPY cosign.pub /cosign.pub
 # Copy from OCI containers to distinct subdirectories to avoid conflicts
-COPY --from=ghcr.io/projectbluefin/common:latest@sha256:47abba6e2a15e36efcb18255fefa7c65673337404719a925d74409c6e080929e /system_files /oci/common
+COPY --from=ghcr.io/projectbluefin/common:latest@sha256:a602e74c55911761050af3654dd787a46cdc4e662c1494d1f7b0ebd6c5e2074a /system_files /oci/common
 COPY --from=ghcr.io/ublue-os/brew:latest@sha256:7646a12d0369270ba479bde05d69e273af966a55178f283b0f717381d086ca7a /system_files /oci/brew
 
 # Base Image - GNOME included
