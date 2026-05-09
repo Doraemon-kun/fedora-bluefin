@@ -9,7 +9,10 @@
             "ghcr.io/doraemon-kun": [
                 {
                     "type": "sigstoreSigned",
-                    "keyPath": "/usr/etc/pki/containers/doraemon-kun.pub"
+                    "keyPath": "/etc/pki/containers/doraemon-kun.pub",
+                    "signedIdentity": {
+                        "type": "matchRepository"
+                    }
                 }
             ]
         }
