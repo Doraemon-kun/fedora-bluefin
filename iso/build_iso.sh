@@ -89,8 +89,8 @@ if [[ -d "/sys/firmware/efi" ]]; then
     fi
 
     # Enroll the custom sb.pub from the deployed system image
-    if [[ -f "/mnt/sysimage/etc/pki/akmods/certs/sb.pub" ]]; then
-        printf 'ublue\nublue\n' | mokutil --import /mnt/sysimage/etc/pki/akmods/certs/sb.pub || true
+    if [[ -f "/etc/pki/akmods/certs/sb.pub" ]]; then
+        printf 'ublue\nublue\n' | mokutil --import /etc/pki/akmods/certs/sb.pub || true
     fi
 fi
 %end
