@@ -28,7 +28,8 @@ cd /extensions
 
 # SimpleWeather
 cd "/extensions/simple-weather@romanlefler.com"
-npm install
+rm -rf node_modules
+npm install --cache /tmp/npm-cache
 make out
 cp -r dist/build "/extensions/built/simple-weather@romanlefler.com"
 cd /extensions
