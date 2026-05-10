@@ -26,7 +26,7 @@ dnf install -y \
     rsync
 
 # 4. Disable Heavy Services & Sleep in LiveCD
-systemctl disable rpm-ostree-countme.service tailscaled.service brew-upgrade.timer brew-update.timer brew-setup.service rpm-ostreed-automatic.timer || true
+systemctl disable rpm-ostree-countme.service tailscaled.service brew-upgrade.timer brew-update.timer brew-setup.service rpm-ostreed-automatic.timer waydroid-container.service || true
 rm -f /etc/xdg/autostart/org.gnome.Software.desktop
 
 mkdir -p /usr/share/glib-2.0/schemas
@@ -48,7 +48,21 @@ sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/sbin/live
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/bin/liveinst || true
 
 tee /etc/anaconda/profile.d/fedora.conf <<'EOF'
+[Profile]
+profile_id = fedora-bluefin
+
+[Profile Detection]
+os_id = fedora-bluefin
+
+[Network]
+default_on_boot = FIRST_WIRED_WITH_LINK
+
+[Bootloader]
+efi_dir = fedora
+menu_auto_hide = True
+
 [User Interface]
+custom_stylesheet = /usr/share/anaconda/pixmaps/silverblue/fedora-silverblue.css
 hidden_spokes =
     NetworkSpoke
     PasswordSpoke

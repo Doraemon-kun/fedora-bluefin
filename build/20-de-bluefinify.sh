@@ -27,10 +27,10 @@ dnf5 -y reinstall plymouth-theme-spinner
 
 # Removing GNOME gschema from Bluefin and regenerate the gschemas
 rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
-cat <<EOF > /usr/share/glib-2.0/schemas/99-custom-settings.gschema.override
+cat <<EOF > /usr/share/glib-2.0/schemas/zz0-custom-settings.gschema.override
 [org.gnome.shell]
 disable-extension-version-validation=true
-enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com']
+enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt']
 
 [org.gnome.desktop.wm.preferences]
 button-layout=':minimize,maximize,close'

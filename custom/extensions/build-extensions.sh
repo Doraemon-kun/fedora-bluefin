@@ -39,3 +39,6 @@ meson setup build
 meson compile -C build zip-file
 unzip -o build/background-logo@fedorahosted.org.shell-extension.zip -d "/extensions/built/background-logo@fedorahosted.org"
 glib-compile-schemas --strict "/extensions/built/background-logo@fedorahosted.org/schemas"
+
+# Lock Keys
+cp -r "/extensions/lockkeys@vaina.lt/lockkeys@vaina.lt" "/extensions/built/lockkeys@vaina.lt"
