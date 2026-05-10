@@ -24,6 +24,7 @@ cd "/extensions/just-perfection-desktop@just-perfection"
 glib-compile-resources --sourcedir src/data src/data/resources.gresource.xml
 gnome-extensions pack src --force --podir="../po" --extra-source="data/resources.gresource" --extra-source="lib"
 unzip -o just-perfection-desktop@just-perfection.shell-extension.zip -d "/extensions/built/just-perfection-desktop@just-perfection"
+glib-compile-schemas --strict "/extensions/built/just-perfection-desktop@just-perfection/schemas"
 cd /extensions
 
 # SimpleWeather

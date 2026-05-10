@@ -85,28 +85,27 @@ jobs:
       - name: Calculate Daily Build Iteration
         id: iteration
         run: |
-          sudo apt-get update && sudo apt-get install -y skopeo
           DATE=$(date -u +%Y%m%d)
           echo "DATE_PREFIX=$DATE" >> $GITHUB_ENV
-          IMAGE_URL="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+          IMAGE_URL="docker://${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
 
-          TAGS=$(skopeo list-tags --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} $IMAGE_URL 2>/dev/null | jq -r '.Tags[]' || echo "")
+          TAG_JSON=$(skopeo list-tags --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} $IMAGE_URL || echo "{}")
+          TAGS=$(echo "$TAG_JSON" | jq -r '.Tags[]?' || echo "")
 
-          ITERATION=0
-          for tag in $TAGS; do
-              if [[ $tag =~ ^${DATE}(\.([0-9]+))?$ ]]; then
-                  SUFFIX="${BASH_REMATCH[2]}"
-                  if [[ -z "$SUFFIX" ]]; then
-                      VAL=0
-                  else
-                      VAL=$SUFFIX
-                  fi
+          echo "All fetched tags:"
+          echo "$TAGS"
 
-                  if (( VAL >= ITERATION )); then
-                      ITERATION=$((VAL + 1))
-                  fi
-              fi
-          done
+          MATCHING_TAGS=$(echo "$TAGS" | grep -E "^${DATE}(\.[0-9]+)?$" || true)
+
+          echo "Tags matching today:"
+          echo "$MATCHING_TAGS"
+
+          if [ -z "$MATCHING_TAGS" ]; then
+              ITERATION=0
+          else
+              MAX_VAL=$(echo "$MATCHING_TAGS" | awk -F. '{if (NF==1) print 0; else print $2}' | sort -n | tail -1)
+              ITERATION=$((MAX_VAL + 1))
+          fi
 
           echo "BUILD_ITERATION=$ITERATION" >> $GITHUB_ENV
 
