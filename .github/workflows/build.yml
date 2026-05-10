@@ -92,13 +92,7 @@ jobs:
           TAG_JSON=$(skopeo list-tags --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} $IMAGE_URL || echo "{}")
           TAGS=$(echo "$TAG_JSON" | jq -r '.Tags[]?' || echo "")
 
-          echo "All fetched tags:"
-          echo "$TAGS"
-
           MATCHING_TAGS=$(echo "$TAGS" | grep -E "^${DATE}(\.[0-9]+)?$" || true)
-
-          echo "Tags matching today:"
-          echo "$MATCHING_TAGS"
 
           if [ -z "$MATCHING_TAGS" ]; then
               ITERATION=0
