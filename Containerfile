@@ -73,6 +73,14 @@ RUN --mount=type=secret,id=mok_key \
     /usr/src/kernels/${KERNEL_VERSION}/scripts/sign-file sha256 /run/secrets/mok_key /tmp/sb.pub /out/lib/modules/${KERNEL_VERSION}/misc/vmmon.ko && \
     /usr/src/kernels/${KERNEL_VERSION}/scripts/sign-file sha256 /run/secrets/mok_key /tmp/sb.pub /out/lib/modules/${KERNEL_VERSION}/misc/vmnet.ko
 
+# === For building GNOME extensions ===
+FROM base-${BASE_IMAGE_NAME} AS gnome-builder
+COPY custom/extensions /extensions
+RUN rpm-ostree install -y glib2-devel meson sassc cmake dbus-devel gcc make git wget bison \
+      flex elfutils-libelf-devel openssl-devel gettext sed optipng nodejs npm gnome-shell && \
+    /bin/bash -c "set -eu; shopt -s nullglob; bash /extensions/build-extensions.sh"
+
+
 # Context stage - combine local and imported OCI container resources
 FROM scratch AS ctx
 
@@ -122,6 +130,9 @@ RUN KERNEL_VERSION=$(ls /usr/lib/modules | grep -v 'modules.' | tail -n 1) && \
     echo "vmmon" > /usr/lib/modules-load.d/vmware.conf && \
     echo "vmnet" >> /usr/lib/modules-load.d/vmware.conf && \
     echo "vmw_vmci" >> /usr/lib/modules-load.d/vmware.conf
+
+# Adding additional extensions
+COPY --from=gnome-builder /extensions/built /usr/share/gnome-shell/extensions
 
 ### MODIFICATIONS
 ## Make modifications desired in your image and install packages by modifying the build scripts.

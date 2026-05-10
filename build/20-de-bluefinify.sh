@@ -27,9 +27,13 @@ dnf5 -y reinstall plymouth-theme-spinner
 
 # Removing GNOME gschema from Bluefin and regenerate the gschemas
 rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
-cat <<EOF > /usr/share/glib-2.0/schemas/99-window-buttons.gschema.override
+cat <<EOF > /usr/share/glib-2.0/schemas/98-window-buttons.gschema.override
 [org.gnome.desktop.wm.preferences]
 button-layout=':minimize,maximize,close'
+EOF
+cat <<EOF > /usr/share/glib-2.0/schemas/99-custom-extensions.gschema.override
+[org.gnome.shell]
+enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com']
 EOF
 glib-compile-schemas /usr/share/glib-2.0/schemas
 

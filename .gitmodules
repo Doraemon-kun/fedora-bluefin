@@ -1,0 +1,18 @@
+[submodule "custom/extensions/AlphabeticalAppGrid@stuarthayhurst"]
+	path = custom/extensions/AlphabeticalAppGrid@stuarthayhurst
+	url = https://github.com/stuarthayhurst/alphabetical-grid-extension.git
+[submodule "custom/extensions/freon@UshakovVasilii_Github.yahoo.com"]
+	path = custom/extensions/freon@UshakovVasilii_Github.yahoo.com
+	url = https://github.com/UshakovVasilii/gnome-shell-extension-freon
+[submodule "custom/extensions/status-area-horizontal-spacing@mathematical.coffee.gmail.com"]
+	path = custom/extensions/status-area-horizontal-spacing@mathematical.coffee.gmail.com
+	url = https://gitlab.com/p91paul/status-area-horizontal-spacing-gnome-shell-extension.git
+[submodule "custom/extensions/just-perfection-desktop@just-perfection"]
+	path = custom/extensions/just-perfection-desktop@just-perfection
+	url = https://gitlab.gnome.org/jrahmatzadeh/just-perfection.git
+[submodule "custom/extensions/netspeed@alynx.one"]
+	path = custom/extensions/netspeed@alynx.one
+	url = https://github.com/AlynxZhou/gnome-shell-extension-net-speed.git
+[submodule "custom/extensions/simple-weather@romanlefler.com"]
+	path = custom/extensions/simple-weather@romanlefler.com
+	url = https://github.com/romanlefler/SimpleWeather.git
