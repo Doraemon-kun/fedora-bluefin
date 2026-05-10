@@ -47,6 +47,17 @@ glib-compile-schemas /usr/share/glib-2.0/schemas
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/sbin/liveinst || true
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/bin/liveinst || true
 
+tee /etc/anaconda/profile.d/fedora.conf <<'EOF'
+[User Interface]
+hidden_spokes =
+    NetworkSpoke
+    PasswordSpoke
+    UserSpoke
+hidden_webui_pages =
+    anaconda-screen-accounts
+EOF
+
+
 # 6. Construct Modular Kickstart
 mkdir -p /usr/share/anaconda/post-scripts/
 

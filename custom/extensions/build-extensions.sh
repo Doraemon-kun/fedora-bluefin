@@ -25,7 +25,6 @@ glib-compile-resources --sourcedir src/data src/data/resources.gresource.xml
 gnome-extensions pack src --force --podir="../po" --extra-source="data/resources.gresource" --extra-source="lib"
 unzip -o just-perfection-desktop@just-perfection.shell-extension.zip -d "/extensions/built/just-perfection-desktop@just-perfection"
 glib-compile-schemas --strict "/extensions/built/just-perfection-desktop@just-perfection/schemas"
-cd /extensions
 
 # SimpleWeather
 cd "/extensions/simple-weather@romanlefler.com"
@@ -33,4 +32,10 @@ rm -rf node_modules
 npm install --cache /tmp/npm-cache
 PATH="$(pwd)/node_modules/.bin:$PATH" make out
 cp -r dist/build "/extensions/built/simple-weather@romanlefler.com"
-cd /extensions
+
+# Background Logo
+cd "/extensions/background-logo@fedorahosted.org"
+meson setup build
+meson compile -C build zip-file
+unzip -o build/background-logo@fedorahosted.org.shell-extension.zip -d "/extensions/built/background-logo@fedorahosted.org"
+glib-compile-schemas --strict "/extensions/built/background-logo@fedorahosted.org/schemas"
