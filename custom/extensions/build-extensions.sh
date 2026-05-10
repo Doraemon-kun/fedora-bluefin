@@ -9,11 +9,11 @@ unzip -o "/extensions/AlphabeticalAppGrid@stuarthayhurst/build/AlphabeticalAppGr
 glib-compile-schemas --strict "/extensions/built/AlphabeticalAppGrid@stuarthayhurst/schemas"
 
 # Freon
-cp -r "/extensions/freon@UshakovVasilii_Github.yahoo.com" "/extensions/built/freon@UshakovVasilii_Github.yahoo.com"
+cp -r "/extensions/freon@UshakovVasilii_Github.yahoo.com/freon@UshakovVasilii_Github.yahoo.com" "/extensions/built/freon@UshakovVasilii_Github.yahoo.com"
 glib-compile-schemas --strict "/extensions/built/freon@UshakovVasilii_Github.yahoo.com/schemas"
 
 # Status Area Horizontal Spacing
-cp -r "/extensions/status-area-horizontal-spacing@mathematical.coffee.gmail.com" "/extensions/built/status-area-horizontal-spacing@mathematical.coffee.gmail.com"
+cp -r "/extensions/status-area-horizontal-spacing@mathematical.coffee.gmail.com/status-area-horizontal-spacing@mathematical.coffee.gmail.com" "/extensions/built/status-area-horizontal-spacing@mathematical.coffee.gmail.com"
 glib-compile-schemas --strict "/extensions/built/status-area-horizontal-spacing@mathematical.coffee.gmail.com/schemas"
 
 # Net Speed
