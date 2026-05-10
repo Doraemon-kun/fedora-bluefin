@@ -41,7 +41,7 @@ FROM ghcr.io/ublue-os/bluefin:latest@sha256:1c9ab7656dd65269335f26dd47394d573e91
 # This is just to make sure that these two guys
 # will not affect each other in the merge process.
 # Please do not remove this comment.
-FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:e316585d44788b399a0309085e1ee1d1ce1f661ef0400f9c788fc93109a49120 AS base-bluefin-dx
+FROM ghcr.io/ublue-os/bluefin-dx:latest@sha256:36f5213fd068afe8610e3404356ae8c9f7a13ff0d74e2f8b18ff87b27a038d1d AS base-bluefin-dx
 
 # === For building VMware kernel modules ===
 FROM base-${BASE_IMAGE_NAME} AS vmware-builder
