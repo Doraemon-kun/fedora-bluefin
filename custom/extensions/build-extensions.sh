@@ -18,7 +18,6 @@ glib-compile-schemas --strict "/extensions/built/status-area-horizontal-spacing@
 
 # Net Speed
 cp -r "/extensions/netspeed@alynx.one" "/extensions/built/netspeed@alynx.one"
-glib-compile-schemas --strict "/extensions/built/netspeed@alynx.one/schemas"
 
 # Just Perfection
 cd "/extensions/just-perfection-desktop@just-perfection"
