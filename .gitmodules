@@ -16,3 +16,6 @@
 [submodule "custom/extensions/simple-weather@romanlefler.com"]
 	path = custom/extensions/simple-weather@romanlefler.com
 	url = https://github.com/romanlefler/SimpleWeather.git
+[submodule "custom/extensions/background-logo@fedorahosted.org"]
+	path = custom/extensions/background-logo@fedorahosted.org
+	url = https://forge.fedoraproject.org/workstation/background-logo-extension.git
