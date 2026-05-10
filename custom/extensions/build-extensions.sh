@@ -30,6 +30,6 @@ cd /extensions
 cd "/extensions/simple-weather@romanlefler.com"
 rm -rf node_modules
 npm install --cache /tmp/npm-cache
-make out
+PATH="$(pwd)/node_modules/.bin:$PATH" make out
 cp -r dist/build "/extensions/built/simple-weather@romanlefler.com"
 cd /extensions
