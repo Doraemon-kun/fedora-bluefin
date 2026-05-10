@@ -63,7 +63,6 @@ echo "::group:: System Configuration"
 # Enable/disable systemd services
 systemctl enable podman.socket
 # Example: systemctl mask unwanted-service
-sudo sensors-detect --auto
 
 echo "::endgroup::"
 
