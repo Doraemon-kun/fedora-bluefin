@@ -33,6 +33,7 @@ button-layout=':minimize,maximize,close'
 EOF
 cat <<EOF > /usr/share/glib-2.0/schemas/99-custom-extensions.gschema.override
 [org.gnome.shell]
+disable-extension-version-validation=true
 enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com']
 EOF
 glib-compile-schemas /usr/share/glib-2.0/schemas
