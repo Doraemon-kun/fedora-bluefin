@@ -112,3 +112,19 @@ IsRuntime=true
 [Flatpak Preinstall org.gtk.Gtk3theme.adw-gtk3-dark]
 Branch=3.22
 IsRuntime=true
+
+# Opinionated packages
+[Flatpak Preinstall im.pidgin.Pidgin]
+Branch=stable
+
+[Flatpak Preinstall org.qbittorrent.qBittorrent]
+Branch=stable
+
+[Flatpak Preinstall org.audacityteam.Audacity]
+Branch=stable
+
+[Flatpak Preinstall io.mpv.Mpv]
+Branch=stable
+
+[Flatpak Preinstall org.onlyoffice.desktopeditors]
+Branch=stable

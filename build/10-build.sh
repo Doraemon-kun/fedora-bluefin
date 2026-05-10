@@ -49,7 +49,12 @@ echo "::group:: Install Packages"
 # Example using COPR with isolated pattern:
 # copr_install_isolated "ublue-os/staging" package-name
 
+# Xwayland dependencies
 dnf5 install -y xorg-x11-server-Xwayland libX11 libxcb libXext libXcursor libXrender libXi libXtst libXinerama libXrandr
+# GNOME extensions dependencies
+dnf5 install -y libsmbios smbios-utils lm_sensors
+# Opinionated programs
+dnf5 install -y waydroid gparted
 
 echo "::endgroup::"
 
