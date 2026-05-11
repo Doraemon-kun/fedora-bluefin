@@ -30,7 +30,7 @@ rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
 cat <<EOF > /usr/share/glib-2.0/schemas/zz0-custom-settings.gschema.override
 [org.gnome.shell]
 disable-extension-version-validation=true
-enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt']
+enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt', 'bazaar-integration@kolunmi.github.io']
 
 [org.gnome.desktop.wm.preferences]
 button-layout=':minimize,maximize,close'
@@ -69,6 +69,33 @@ sort-directories-first=true
 
 [org.gnome.mutter]
 center-new-windows=true
+EOF
+cat <<EOF > /usr/share/glib-2.0/schemas/zz1-extensions-settings.gschema.override
+[org.gnome.shell.extensions.simple-weather]
+always-packaged-icons=true
+direction-unit='degrees'
+hide-err-popup=true
+is-activated=true
+panel-box='center'
+panel-offset=60
+panel-priority=1
+show-refresh-button=true
+symbolic-icons-panel=true
+theme='immersive'
+unit-preset='metric'
+
+[org.gnome.shell.extensions.caffeine]
+enable-mpris=true
+
+[org.gnome.shell.extensions.freon]
+show-decimal-value=true
+
+[org.gnome.shell.extensions.lockkeys]
+capslock-indicator='never'
+numlock-indicator='never'
+
+[org.gnome.shell.extensions.status-area-horizontal-spacing]
+hpadding=9
 EOF
 glib-compile-schemas /usr/share/glib-2.0/schemas/
 
