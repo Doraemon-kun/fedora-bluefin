@@ -52,7 +52,8 @@ tee /etc/anaconda/profile.d/fedora.conf <<'EOF'
 profile_id = fedora-bluefin
 
 [Profile Detection]
-os_id = fedora-bluefin
+os_id = fedora
+variant_id = fedora-bluefin
 
 [Network]
 default_on_boot = FIRST_WIRED_WITH_LINK
@@ -63,6 +64,7 @@ menu_auto_hide = True
 
 [User Interface]
 custom_stylesheet = /usr/share/anaconda/pixmaps/silverblue/fedora-silverblue.css
+webui_web_engine = slitherer
 hidden_spokes =
     NetworkSpoke
     PasswordSpoke
