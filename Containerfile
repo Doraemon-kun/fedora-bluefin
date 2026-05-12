@@ -36,7 +36,7 @@
 
 # Declare sample build stage for Renovate
 ARG BASE_IMAGE_NAME=bluefin
-FROM ghcr.io/ublue-os/bluefin:latest@sha256:977fd3a9b9af550b314486ec840445121a5f1127bc3eab0a8ee29b5c8a46fbfb AS base-bluefin
+FROM ghcr.io/ublue-os/bluefin:latest@sha256:4e7c967a7645a022b0b7c2e99ccc42e272e6dc9a7b0664e8826cba55b256b912 AS base-bluefin
 
 # This is just to make sure that these two guys
 # will not affect each other in the merge process.
