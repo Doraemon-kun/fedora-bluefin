@@ -77,7 +77,8 @@ RUN --mount=type=secret,id=mok_key \
 FROM base-${BASE_IMAGE_NAME} AS gnome-builder
 COPY custom/extensions /extensions
 RUN rpm-ostree install -y glib2-devel meson sassc cmake dbus-devel gcc make git wget bison \
-      flex elfutils-libelf-devel openssl-devel gettext sed optipng nodejs npm gnome-shell && \
+      flex elfutils-libelf-devel openssl-devel gettext sed optipng nodejs npm gnome-shell libgda \
+      libgda-sqlite sqlite && \
     /bin/bash -c "set -eu; shopt -s nullglob; bash /extensions/build-extensions.sh"
 
 

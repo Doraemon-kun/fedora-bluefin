@@ -22,3 +22,12 @@
 [submodule "custom/extensions/lockkeys@vaina.lt"]
 	path = custom/extensions/lockkeys@vaina.lt
 	url = https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git
+[submodule "custom/extensions/Bluetooth-Battery-Meter@maniacx.github.com"]
+	path = custom/extensions/Bluetooth-Battery-Meter@maniacx.github.com
+	url = https://github.com/maniacx/Bluetooth-Battery-Meter.git
+[submodule "custom/extensions/Battery-Health-Charging@maniacx.github.com"]
+	path = custom/extensions/Battery-Health-Charging@maniacx.github.com
+	url = https://github.com/maniacx/battery-health-charging.git
+[submodule "custom/extensions/copyous@boerdereinar.dev"]
+	path = custom/extensions/copyous@boerdereinar.dev
+	url = https://github.com/boerdereinar/copyous.git

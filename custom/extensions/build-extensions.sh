@@ -42,3 +42,36 @@ glib-compile-schemas --strict "/extensions/built/background-logo@fedorahosted.or
 
 # Lock Keys
 cp -r "/extensions/lockkeys@vaina.lt/lockkeys@vaina.lt" "/extensions/built/lockkeys@vaina.lt"
+
+# Bluetooth Battery Meter
+cd "/extensions/Bluetooth-Battery-Meter@maniacx.github.com"
+gnome-extensions pack ./ --extra-source=icons/ --extra-source=lib/ --extra-source=preferences/ --extra-source=ui/ --extra-source=script/ --podir=po --force
+unzip -o Bluetooth-Battery-Meter@maniacx.github.com.shell-extension.zip -d "/extensions/built/Bluetooth-Battery-Meter@maniacx.github.com"
+glib-compile-schemas --strict "/extensions/built/Bluetooth-Battery-Meter@maniacx.github.com/schemas"
+
+# Battery Health Charging
+cd "/extensions/Battery-Health-Charging@maniacx.github.com"
+gnome-extensions pack ./ --extra-source=devices/ --extra-source=icons/ --extra-source=lib/ --extra-source=resources/ --extra-source=preferences/ --extra-source=tool/ --extra-source=ui/ --podir=po --force
+unzip -o Battery-Health-Charging@maniacx.github.com.shell-extension.zip -d "/extensions/built/Battery-Health-Charging@maniacx.github.com"
+glib-compile-schemas --strict "/extensions/built/Battery-Health-Charging@maniacx.github.com/schemas"
+
+# Copyous
+mkdir -p /tmp/pnpm-setup && cd /tmp/pnpm-setup
+npm install pnpm --cache /tmp/npm-cache
+PATH="/tmp/pnpm-setup/node_modules/.bin:$PATH"
+export CI=true
+export npm_config_loglevel=silent
+cd "/extensions/copyous@boerdereinar.dev"
+jq 'del(.scripts.install)' package.json > package.json.tmp && mv package.json.tmp package.json
+cat <<EOF > pnpm-workspace.yaml
+allowBuilds:
+  esbuild: true
+  "@parcel/watcher": true
+reporter: 'silent'
+EOF
+echo "node-linker=hoisted" > .npmrc
+echo "confirmModulesPurge=false" >> .npmrc
+pnpm install --store-dir=./.pnpm-store --reporter=append-only --no-frozen-lockfile
+RELEASE=1 make build
+unzip -o "dist/copyous@boerdereinar.dev.zip" -d "/extensions/built/copyous@boerdereinar.dev"
+glib-compile-schemas --strict "/extensions/built/copyous@boerdereinar.dev/schemas"

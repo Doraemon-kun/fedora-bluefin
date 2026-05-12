@@ -52,7 +52,7 @@ echo "::group:: Install Packages"
 # Xwayland dependencies
 dnf5 install -y xorg-x11-server-Xwayland libX11 libxcb libXext libXcursor libXrender libXi libXtst libXinerama libXrandr
 # GNOME extensions dependencies
-dnf5 install -y libsmbios smbios-utils lm_sensors
+dnf5 install -y libsmbios smbios-utils lm_sensors libgda libgda-sqlite gsound
 # Opinionated programs
 dnf5 install -y waydroid gparted
 

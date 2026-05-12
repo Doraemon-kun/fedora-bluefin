@@ -30,7 +30,7 @@ rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
 cat <<EOF > /usr/share/glib-2.0/schemas/zz0-custom-settings.gschema.override
 [org.gnome.shell]
 disable-extension-version-validation=true
-enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt', 'bazaar-integration@kolunmi.github.io']
+enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt', 'bazaar-integration@kolunmi.github.io', 'Bluetooth-Battery-Meter@maniacx.github.com', 'Battery-Health-Charging@maniacx.github.com', 'copyous@boerdereinar.dev']
 
 [org.gnome.desktop.wm.preferences]
 button-layout=':minimize,maximize,close'
@@ -122,6 +122,10 @@ rm -f /usr/share/applications/system-update.desktop
 rm -f /usr/share/ublue-os/firefox-config/01-bluefin-global.js
 # VS Code settings
 rm -rf /etc/skel/.config/Code
+
+# Bluetooth experimental features
+sed -i 's/^#*Experimental *=.*/Experimental = true/' /etc/bluetooth/main.conf
+sed -i 's/^#*KernelExperimental *=.*/KernelExperimental = true/' /etc/bluetooth/main.conf
 
 # os-release back to Fedora
 if [[ -f /usr/lib/os-release ]]; then
