@@ -81,6 +81,11 @@ RUN rpm-ostree install -y glib2-devel meson sassc cmake dbus-devel gcc make git 
       libgda-sqlite sqlite && \
     /bin/bash -c "set -eu; shopt -s nullglob; bash /extensions/build-extensions.sh"
 
+# === For weird /opt packages ===
+FROM base-${BASE_IMAGE_NAME} AS opt-importer
+RUN rm /opt && \
+    mkdir /opt && \
+    dnf5 install -y "https://windscribe.com/install/desktop/linux_rpm_x64"
 
 # Context stage - combine local and imported OCI container resources
 FROM scratch AS ctx
@@ -134,6 +139,16 @@ RUN KERNEL_VERSION=$(ls /usr/lib/modules | grep -v 'modules.' | tail -n 1) && \
 
 # Adding additional extensions
 COPY --from=gnome-builder /extensions/built /usr/share/gnome-shell/extensions
+
+# For /opt
+COPY --from=opt-importer /opt/ /usr/lib/opt/
+# Application-specific /opt
+# Windscribe
+COPY --from=opt-importer /usr/lib/systemd/system/windscribe-helper.service /usr/lib/systemd/system/
+COPY --from=opt-importer /usr/polkit-1/actions/com.windscribe.authhelper.policy /usr/share/polkit-1/actions/
+COPY --from=opt-importer /usr/share/applications/windscribe.desktop /usr/share/applications/
+COPY --from=opt-importer /usr/share/icons/hicolor/ /usr/share/icons/hicolor/
+COPY --from=opt-importer /etc/windscribe/ /etc/windscribe/
 
 ### MODIFICATIONS
 ## Make modifications desired in your image and install packages by modifying the build scripts.

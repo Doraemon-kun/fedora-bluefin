@@ -55,6 +55,15 @@ dnf5 install -y xorg-x11-server-Xwayland libX11 libxcb libXext libXcursor libXre
 dnf5 install -y libsmbios smbios-utils lm_sensors libgda libgda-sqlite gsound
 # Opinionated programs
 dnf5 install -y waydroid gparted
+# /opt handler
+echo > /usr/lib/tmpfiles.d/opt.conf
+for dir in /usr/lib/opt/*; do
+    [ -e "$dir" ] || continue;
+    folder=$(basename "$dir");
+    echo "L /var/opt/$folder - - - - /usr/lib/opt/$folder" >> /usr/lib/tmpfiles.d/opt.conf;
+done
+# Windscribe-related
+systemctl enable windscribe-helper.service
 
 echo "::endgroup::"
 
