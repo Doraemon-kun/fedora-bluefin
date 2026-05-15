@@ -69,8 +69,22 @@ sort-directories-first=true
 
 [org.gnome.mutter]
 center-new-windows=true
+
+[org.gtk.Settings.FileChooser]
+show-hidden=true
+
+[org.gtk.gtk4.Settings.FileChooser]
+show-hidden=true
+
+[org.gnome.nautilus.preferences]
+show-create-link=true
+show-delete-permanently=true
+show-hidden-files=true
 EOF
-cat <<EOF > /usr/share/glib-2.0/schemas/zz1-extensions-settings.gschema.override
+cat <<EOF > /etc/dconf/db/distro.d/zz1-extensions-settings
+[org.gnome.shell]
+disable-extension-version-validation=true
+
 [org.gnome.shell.extensions.simple-weather]
 always-packaged-icons=true
 direction-unit='degrees'
@@ -99,6 +113,12 @@ hpadding=9
 EOF
 glib-compile-schemas /usr/share/glib-2.0/schemas/
 
+# Profile.d for fcitx5
+cat <<EOF > /etc/profile.d/default.sh
+XMODIFIERS=@im=fcitx
+QT_IM_MODULE=fcitx
+EOF
+
 # Remove Dconf database files
 rm -f /etc/dconf/db/distro.d/01-bluefin-folders
 rm -f /etc/dconf/db/distro.d/02-bluefin-keybindings
@@ -107,7 +127,7 @@ rm -f /etc/dconf/db/distro.d/04-bluefin-custom-command-menu
 rm -f /etc/dconf/db/distro.d/05-bluefin-searchlight-extension
 rm -f /etc/dconf/db/distro.d/locks/01-bluefin-locked-settings
 # And update it back
-#dconf update
+dconf update
 
 # Remove Terminal stuff at profile (i.e. stop running when open terminal)
 rm -f /etc/profile.d/ublue-motd.sh

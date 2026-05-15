@@ -55,6 +55,14 @@ gnome-extensions pack ./ --extra-source=devices/ --extra-source=icons/ --extra-s
 unzip -o Battery-Health-Charging@maniacx.github.com.shell-extension.zip -d "/extensions/built/Battery-Health-Charging@maniacx.github.com"
 glib-compile-schemas --strict "/extensions/built/Battery-Health-Charging@maniacx.github.com/schemas"
 
+# Kimpanel
+cd "/extensions/kimpanel@kde.org"
+mkdir build && cd build
+cmake ..
+make clean
+make build-zip
+unzip -o kimpanel@kde.org.zip -d "/extensions/built/kimpanel@kde.org"
+
 # Copyous
 mkdir -p /tmp/pnpm-setup && cd /tmp/pnpm-setup
 npm install pnpm --cache /tmp/npm-cache

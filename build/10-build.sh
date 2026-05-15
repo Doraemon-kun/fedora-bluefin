@@ -57,6 +57,8 @@ dnf5 install -y libsmbios smbios-utils lm_sensors libgda libgda-sqlite gsound
 dnf5 install -y waydroid gparted
 # fcitx5 supports
 dnf5 install -y fcitx5 fcitx5-autostart fcitx5-configtool fcitx5-gtk fcitx5-mozc fcitx5-qt fcitx5-unikey fcitx5-table-extra fcitx5-table-other
+# Icon packs
+wget -qO- https://git.io/papirus-icon-theme-install | sh
 # /opt handler
 echo > /usr/lib/tmpfiles.d/opt.conf
 for dir in /usr/lib/opt/*; do
