@@ -128,3 +128,36 @@ Branch=stable
 
 [Flatpak Preinstall org.onlyoffice.desktopeditors]
 Branch=stable
+
+[Flatpak Preinstall org.chromium.Chromium]
+Branch=stable
+
+[Flatpak Preinstall org.kde.drawy]
+Branch=stable
+
+[Flatpak Preinstall org.kde.kget]
+Branch=stable
+
+[Flatpak Preinstall io.github.kovzol.geogebra-discovery]
+Branch=stable
+
+[Flatpak Preinstall org.gtkhash.gtkhash]
+Branch=stable
+
+[Flatpak Preinstall org.kde.kate]
+Branch=stable
+
+[Flatpak Preinstall org.keepassxc.KeePassXC]
+Branch=stable
+
+[Flatpak Preinstall org.kde.krita]
+Branch=stable
+
+[Flatpak Preinstall org.localsend.localsend_app]
+Branch=stable
+
+[Flatpak Preinstall org.bunkus.mkvtoolnix-gui]
+Branch=stable
+
+[Flatpak Preinstall org.videolan.VLC]
+Branch=stable

@@ -51,6 +51,25 @@ jobs:
           FILE_LIST="$(mktemp)"
           curl -sSL "https://raw.githubusercontent.com/projectbluefin/common/main/system_files/bluefin/usr/share/ublue-os/homebrew/system-flatpaks.Brewfile" | \
             awk -F"['\"]" '/^flatpak/ {print $2}' > "${FILE_LIST}"
+          # Opinionated packages
+          cat >> "${FILE_LIST}" << 'EOF'
+            im.pidgin.Pidgin
+            org.qbittorrent.qBittorrent
+            org.audacityteam.Audacity
+            io.mpv.Mpv
+            org.onlyoffice.desktopeditors
+            org.chromium.Chromium
+            org.kde.drawy
+            org.kde.kget
+            io.github.kovzol.geogebra-discovery
+            org.gtkhash.gtkhash
+            org.kde.kate
+            org.keepassxc.KeePassXC
+            org.kde.krita
+            org.localsend.localsend_app
+            org.bunkus.mkvtoolnix-gui
+            org.videolan.VLC
+          EOF
           echo "file_list_path=${FILE_LIST}" >> $GITHUB_OUTPUT
 
       - name: Build ISO

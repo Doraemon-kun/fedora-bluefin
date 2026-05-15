@@ -55,6 +55,8 @@ dnf5 install -y xorg-x11-server-Xwayland libX11 libxcb libXext libXcursor libXre
 dnf5 install -y libsmbios smbios-utils lm_sensors libgda libgda-sqlite gsound
 # Opinionated programs
 dnf5 install -y waydroid gparted
+# fcitx5 supports
+dnf5 install -y fcitx5 fcitx5-autostart fcitx5-configtool fcitx5-gtk fcitx5-mozc fcitx5-qt fcitx5-unikey fcitx5-table-extra fcitx5-table-other
 # /opt handler
 echo > /usr/lib/tmpfiles.d/opt.conf
 for dir in /usr/lib/opt/*; do
