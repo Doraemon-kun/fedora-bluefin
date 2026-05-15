@@ -31,3 +31,6 @@
 [submodule "custom/extensions/copyous@boerdereinar.dev"]
 	path = custom/extensions/copyous@boerdereinar.dev
 	url = https://github.com/boerdereinar/copyous.git
+[submodule "custom/extensions/kimpanel@kde.org"]
+	path = custom/extensions/kimpanel@kde.org
+	url = https://github.com/wengxt/gnome-shell-extension-kimpanel
