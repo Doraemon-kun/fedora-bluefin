@@ -96,7 +96,7 @@ COPY sb.pub /sb.pub
 COPY cosign.pub /cosign.pub
 # Copy from OCI containers to distinct subdirectories to avoid conflicts
 COPY --from=ghcr.io/projectbluefin/common:latest@sha256:c1fcbdf3ccf0aaba71f8aaf2b2a5bd0bc507e6d33c8433bdf29584cd705a41cb /system_files /oci/common
-COPY --from=ghcr.io/ublue-os/brew:latest@sha256:9dab9ce3232b96d289d131201e007284044a4a9c2073087bb2c698994ec07988 /system_files /oci/brew
+COPY --from=ghcr.io/ublue-os/brew:latest@sha256:931f0f067bf46c078b919d7b69b7d540c9dc13c836818048e029abf4efcb576b /system_files /oci/brew
 
 # Base Image - GNOME included
 # Dynamically select the correct base stage based on your GitHub Action matrix
