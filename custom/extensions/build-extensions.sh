@@ -83,3 +83,11 @@ pnpm install --store-dir=./.pnpm-store --reporter=append-only --no-frozen-lockfi
 RELEASE=1 make build
 unzip -o "dist/copyous@boerdereinar.dev.zip" -d "/extensions/built/copyous@boerdereinar.dev"
 glib-compile-schemas --strict "/extensions/built/copyous@boerdereinar.dev/schemas"
+
+# Touchpad Gesture
+cd "/extensions/touchpad-gesture-customization@coooolapps.com"
+rm -rf node_modules
+npm install --cache /tmp/npm-cache
+npm run pack
+unzip -o build/touchpad-gesture-customization@coooolapps.com.zip -d "/extensions/built/touchpad-gesture-customization@coooolapps.com"
+glib-compile-schemas --strict "/extensions/built/touchpad-gesture-customization@coooolapps.com/schemas"

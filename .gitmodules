@@ -34,3 +34,6 @@
 [submodule "custom/extensions/kimpanel@kde.org"]
 	path = custom/extensions/kimpanel@kde.org
 	url = https://github.com/wengxt/gnome-shell-extension-kimpanel
+[submodule "custom/extensions/touchpad-gesture-customization@coooolapps.com"]
+	path = custom/extensions/touchpad-gesture-customization@coooolapps.com
+	url = https://github.com/hieutng/touchpad-gesture-customization

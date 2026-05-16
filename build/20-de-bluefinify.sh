@@ -30,7 +30,7 @@ rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
 cat <<EOF > /usr/share/glib-2.0/schemas/zz0-custom-settings.gschema.override
 [org.gnome.shell]
 disable-extension-version-validation=true
-enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt', 'bazaar-integration@kolunmi.github.io', 'Bluetooth-Battery-Meter@maniacx.github.com', 'Battery-Health-Charging@maniacx.github.com', 'copyous@boerdereinar.dev', 'kimpanel@kde.org']
+enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt', 'bazaar-integration@kolunmi.github.io', 'Bluetooth-Battery-Meter@maniacx.github.com', 'Battery-Health-Charging@maniacx.github.com', 'copyous@boerdereinar.dev', 'kimpanel@kde.org', 'touchpad-gesture-customization@coooolapps.com']
 
 [org.gnome.desktop.wm.preferences]
 button-layout=':minimize,maximize,close'
@@ -80,6 +80,17 @@ show-hidden=true
 show-create-link=true
 show-delete-permanently=true
 show-hidden-files=true
+
+[org.gnome.desktop.interface]
+show-battery-percentage=true
+clock-show-weekday=true
+clock-show-seconds=true
+
+[org.gnome.desktop.calendar]
+show-weekdate=true
+
+[org.gnome.desktop.datetime]
+automatic-timezone=true
 EOF
 cat <<EOF > /etc/dconf/db/distro.d/zz1-extensions-settings
 [org/gnome/shell]
