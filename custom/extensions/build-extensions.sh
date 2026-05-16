@@ -85,7 +85,7 @@ unzip -o "dist/copyous@boerdereinar.dev.zip" -d "/extensions/built/copyous@boerd
 glib-compile-schemas --strict "/extensions/built/copyous@boerdereinar.dev/schemas"
 
 # Touchpad Gesture
-cd "/extensions/touchpad-gesture-customization@coooolapps.com.zip"
+cd "/extensions/touchpad-gesture-customization@coooolapps.com"
 rm -rf node_modules
 npm install --cache /tmp/npm-cache
 npm run pack
