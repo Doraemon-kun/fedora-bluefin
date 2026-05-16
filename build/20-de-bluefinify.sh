@@ -80,6 +80,17 @@ show-hidden=true
 show-create-link=true
 show-delete-permanently=true
 show-hidden-files=true
+
+[org.gnome.desktop.interface]
+show-battery-percentage=true
+clock-show-weekday=true
+clock-show-seconds=true
+
+[org.gnome.desktop.calendar]
+show-weekdate=true
+
+[org.gnome.desktop.datetime]
+automatic-timezone=true
 EOF
 cat <<EOF > /etc/dconf/db/distro.d/zz1-extensions-settings
 [org/gnome/shell]
