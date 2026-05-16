@@ -30,7 +30,7 @@ rm -f /usr/share/glib-2.0/schemas/zz0-bluefin-modifications.gschema.override
 cat <<EOF > /usr/share/glib-2.0/schemas/zz0-custom-settings.gschema.override
 [org.gnome.shell]
 disable-extension-version-validation=true
-enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt', 'bazaar-integration@kolunmi.github.io', 'Bluetooth-Battery-Meter@maniacx.github.com', 'Battery-Health-Charging@maniacx.github.com', 'copyous@boerdereinar.dev']
+enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'freon@UshakovVasilii_Github.yahoo.com', 'status-area-horizontal-spacing@mathematical.coffee.gmail.com', 'appindicatorsupport@rgcjonas.gmail.com', 'blur-my-shell@aunetx', 'caffeine@patapon.info', 'gsconnect@andyholmes.github.io', 'netspeed@alynx.one', 'just-perfection-desktop@just-perfection', 'simple-weather@romanlefler.com', 'background-logo@fedorahosted.org', 'lockkeys@vaina.lt', 'bazaar-integration@kolunmi.github.io', 'Bluetooth-Battery-Meter@maniacx.github.com', 'Battery-Health-Charging@maniacx.github.com', 'copyous@boerdereinar.dev', 'kimpanel@kde.org']
 
 [org.gnome.desktop.wm.preferences]
 button-layout=':minimize,maximize,close'
@@ -82,10 +82,10 @@ show-delete-permanently=true
 show-hidden-files=true
 EOF
 cat <<EOF > /etc/dconf/db/distro.d/zz1-extensions-settings
-[org.gnome.shell]
+[org/gnome/shell]
 disable-extension-version-validation=true
 
-[org.gnome.shell.extensions.simple-weather]
+[org/gnome/shell/extensions/simple-weather]
 always-packaged-icons=true
 direction-unit='degrees'
 hide-err-popup=true
@@ -98,25 +98,29 @@ symbolic-icons-panel=true
 theme='immersive'
 unit-preset='metric'
 
-[org.gnome.shell.extensions.caffeine]
+[org/gnome/shell/extensions/caffeine]
 enable-mpris=true
 
-[org.gnome.shell.extensions.freon]
+[org/gnome/shell/extensions/freon]
 show-decimal-value=true
 
-[org.gnome.shell.extensions.lockkeys]
+[org/gnome/shell/extensions/lockkeys]
 capslock-indicator='never'
 numlock-indicator='never'
 
-[org.gnome.shell.extensions.status-area-horizontal-spacing]
+[org/gnome/shell/extensions/status-area-horizontal-spacing]
 hpadding=9
+
+[org/gnome/desktop/interface]
+icon-theme='Papirus'
 EOF
 glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-# Profile.d for fcitx5
+# Profile.d for fcitx5 and Homebrew
 cat <<EOF > /etc/profile.d/default.sh
-XMODIFIERS=@im=fcitx
-QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export QT_IM_MODULE=fcitx
+export HOMEBREW_NO_ANALYTICS=1
 EOF
 
 # Remove Dconf database files

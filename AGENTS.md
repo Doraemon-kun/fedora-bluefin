@@ -877,7 +877,7 @@ See `build/copr-install-functions.sh` for reusable patterns:
 - Enabled systemd services
 - Custom files copied from `/ctx/custom/` to standard locations:
   - Brewfiles → `/usr/share/ublue-os/homebrew/`
-  - ujust files → `/usr/share/ublue-os/just/60-custom.just`
+  - ujust files → `/usr/share/ublue-os/just/zz-custom.just`
   - Flatpak preinstall → `/etc/flatpak/preinstall.d/`
 
 **Runtime (installed after deployment)**:

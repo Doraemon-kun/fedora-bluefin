@@ -33,7 +33,7 @@ mkdir -p /usr/share/ublue-os/homebrew/
 cp /ctx/custom/brew/*.Brewfile /usr/share/ublue-os/homebrew/
 
 # Consolidate Just Files
-find /ctx/custom/ujust -iname '*.just' -exec printf "\n\n" \; -exec cat {} \; >> /usr/share/ublue-os/just/60-custom.just
+find /ctx/custom/ujust -iname '*.just' -exec printf "\n\n" \; -exec cat {} \; >> /usr/share/ublue-os/just/zz-custom.just
 
 # Copy Flatpak preinstall files
 mkdir -p /etc/flatpak/preinstall.d/
@@ -86,7 +86,7 @@ if [ -f /ctx/sb.pub ]; then
     cp /ctx/sb.pub /etc/pki/akmods/certs/sb.pub
 fi
 
-# Install the custom cosign public key to the system
+# Install the custom cosign public key to the system + enforcing sigpolicy
 if [ -f /ctx/cosign.pub ]; then
     mkdir -p /etc/pki/containers/
     cp /ctx/cosign.pub /etc/pki/containers/doraemon-kun.pub
@@ -98,7 +98,13 @@ docker:
   ghcr.io/doraemon-kun:
     use-sigstore-attachments: true
 EOF
+    mkdir -p /usr/lib/bootc/install/
+    cat > /usr/lib/bootc/install/zz-bootc.toml << 'EOF'
+[install]
+enforce-container-sigpolicy = true
+EOF
 fi
+
 echo "::endgroup::"
 
 # Restore default glob behavior
