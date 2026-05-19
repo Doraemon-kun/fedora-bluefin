@@ -74,7 +74,7 @@ jobs:
 
       - name: Build ISO
         id: build
-        uses: ublue-os/titanoboa@840217d97bd0bc9a52466508c54d8dda5c5ba2fd # main
+        uses: ublue-os/titanoboa@5c457c3d0518bd17e754be0fd98a60d29d26abb4 # main
         with:
           image-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           flatpaks-list: ${{ steps.flatpak_list.outputs.file_list_path }}
